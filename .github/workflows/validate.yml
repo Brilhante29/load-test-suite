@@ -1,0 +1,35 @@
+name: validate
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.25.x"
+      - name: Test and vet Go target
+        run: |
+          go test ./...
+          go vet ./...
+      - name: Check k6 JavaScript syntax
+        run: node --check k6/p95-curve.js && node --check k6/scenarios/p95-curve.js && node --check k6/report/result.js
+      - name: Build Docker image
+        run: docker build -t load-test-suite:ci .
+      - name: Run benchmark in Docker
+        run: |
+          mkdir -p benchmarks/results
+          docker run --rm \
+            -v "$PWD/benchmarks/results:/results" \
+            -e RESULT_FILE_NAME=p95-curve-ci.json \
+            -e BENCHMARK_IMAGE=load-test-suite:ci \
+            -e BENCHMARK_IMAGE_ID=ci \
+            -e BENCHMARK_COMMIT=${{ github.sha }} \
+            load-test-suite:ci benchmark
+      - name: Strict project validation
+        shell: pwsh
+        run: ./tools/validate-project.ps1 -SkipDocker -Strict

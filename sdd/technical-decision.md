@@ -2,119 +2,121 @@
 
 ## Status
 
-Proposed
+Accepted
 
 ## Decision Type
 
-`<stack|api-style|cloud|messaging|database|library|runtime|framework>`
+`runtime + stack + benchmark`
 
 ## Context
 
-Project: `<project-name>`
-Problem: `<problem to solve>`
-Portfolio program: `<program>`
-Public signal: `<GitHub/LinkedIn proficiency signal>`
-Benchmark: `<metric>`
+Project: `load-test-suite #29`
+
+Problem: medir carga HTTP local com runtime simples e evidencia versionada.
+
+Portfolio program: `delivery-observability-infra`.
+
+Public signal: Go de baixo overhead, k6, Docker, CI e benchmark reproduzivel.
+
+Benchmark: `p95_curve`.
 
 ## Selected Option
 
-Selected: `<option>`
+Selected: Go standard library como alvo estatico e grafana/k6 0.49.0 como
+executor.
 
 Reason:
 
-`<Why this option fits the problem, benchmark, and public signal.>`
+Go oferece um binario pequeno, sem dependencias em runtime, inicializacao
+rapida e comportamento previsivel sob concorrencia. k6 e a ferramenta adequada
+para VUs e percentis; sua imagem fixa torna a execucao independente de Node,
+Python ou pacotes locais.
 
 ## Decision Brain Fields
 
-- Stack profile: `<spring-kotlin-backend|fastapi-backend|go-backend|node-typescript-backend|angular|nextjs|python-ml|terraform>`
-- API style: `<rest-http|graphql|grpc|websocket|sse|cli>`
-- Messaging: `<none|outbox-only|rabbitmq|kafka|redis-streams|nats>`
-- Cloud mode: `<none|kumo-local-first|adapter-fake|real-cloud-required>`
-- Database/runtime: `<selection>`
-- Library policy: `<selection>`
+- Stack profile: `go-backend`.
+- API style: `rest-http`.
+- Messaging: `none`.
+- Cloud mode: `none`.
+- Database/runtime: nenhum banco; um container com binario Go e k6.
+- Library policy: biblioteca padrao Go e APIs nativas k6; sem dependencia de aplicacao.
 
 ## Engineering Principles
 
 Coupling boundary:
 
-`<Domain/use cases must not depend on framework, DB, broker, cloud SDK, transport, or UI.>`
+O alvo Go nao importa k6, Docker ou o relatorio. O relatorio recebe apenas o
+objeto de summary do k6 e produz o contrato JSON.
 
 SOLID application:
 
-- SRP: `<how responsibilities are split>`
-- OCP: `<how behavior extends without rewriting stable policy>`
-- LSP: `<how adapters/fakes/reals stay substitutable>`
-- ISP: `<small ports/interfaces used>`
-- DIP: `<high-level policy depends on abstractions>`
+- SRP: handler, scenario, report e scripts tem uma responsabilidade cada.
+- OCP: `TARGET_URL` troca o alvo sem alterar a logica de medicao.
+- LSP: qualquer endpoint HTTP que cumpra o contrato 2xx pode substituir o alvo local.
+- ISP: o alvo expoe somente os endpoints HTTP necessarios; nao ha interface artificial.
+- DIP: o processo Go recebe um `http.Handler` concreto construido no boundary e o k6 depende do contrato HTTP, nao da implementacao.
 
 Simplicity:
 
-- KISS: `<simplest design that proves the claim>`
-- YAGNI: `<future abstraction intentionally not added>`
-- DRY: `<duplicated business knowledge removed without premature abstraction>`
+- KISS: um entrypoint inicia o alvo e o k6, sem compose ou broker.
+- YAGNI: nao foram adicionados banco, observabilidade ou dashboard porque nao provam p95_curve.
+- DRY: niveis e metricas sao descritos uma vez no cenario e formatados uma vez no relatorio.
 
 Testability evidence:
 
-- `<use case test without transport/infrastructure>`
-- `<adapter or contract test>`
+- `internal/target/handler_test.go` executa sem infraestrutura.
+- `go vet`, `node --check`, build Docker e benchmark formam o teste de contrato integrado.
+
 ## Rejected Options
 
 | Option | Why rejected |
 |---|---|
-| `<option>` | `<reason>` |
-| `<option>` | `<reason>` |
+| Python stdlib server | Runtime maior e menor sinal para o perfil de baixo overhead. |
+| Node.js server | Duplicaria o runtime JavaScript; o JavaScript necessario ja e executado pelo k6. |
+| k6 instalado no host | Quebraria a reproducibilidade por versao e adicionaria pre-requisito local. |
+| Docker Compose | O caso tem um unico container executavel e nao precisa orquestrar servicos. |
 
 ## API Contract
 
-Contract artifact:
+Contract artifact: contrato HTTP minimo documentado em `sdd/spec.md`.
 
-`<OpenAPI|GraphQL schema|protobuf|event contract|CLI output schema|none>`
-
-GraphQL controls, when applicable:
-
-- Query complexity/depth limit: `<yes|no|not applicable>`
-- N+1 prevention: `<DataLoader/batching plan|not applicable>`
-- Field-level auth rule: `<yes|no|not applicable>`
+- `GET /health` retorna `200 application/json` e fixture estavel.
+- `GET /payload` retorna fixture estavel com seed 42.
+- Outros metodos retornam `405` com `Allow: GET`.
 
 ## Cloud Local-First
 
-Local provider:
+Local provider: `none`.
 
-`<kumo|none|adapter fake>`
-
-Real provider target:
-
-`<aws|none|other>`
+Real provider target: `none`.
 
 Config switch:
 
 ```txt
-CLOUD_PROVIDER=<kumo|aws|none>
-CLOUD_ENDPOINT=http://localhost:4566
+TARGET_URL=http://127.0.0.1:8080/health
 ```
 
-Unsupported local behaviors:
-
-- `<behavior or none>`
+Unsupported local behaviors: nenhum; o benchmark nao faz claim de paridade cloud.
 
 ## Benchmark Impact
 
 Expected impact:
 
-- `<metric/result this decision should improve or clarify>`
+- O alvo Go reduz ruido de runtime e torna visivel a curva de p95 do HTTP.
+- O JSON registra image tag, image id, commit, niveis e duracoes.
 
 Validation command:
 
 ```powershell
-<command>
+pwsh -NoProfile -File tools/validate-project.ps1 -Strict
 ```
 
 ## Operational Cost
 
-- Docker services added: `<none|kumo|postgres|redis|rabbitmq|redpanda|...>`
-- Local demo complexity: `<low|medium|high>`
-- Failure case required: `<yes|no>`
+- Docker services added: nenhum servico externo.
+- Local demo complexity: low.
+- Failure case required: yes; thresholds falham em status nao-2xx ou erro acima de 1%.
 
 ## Follow-up
 
-- `<what must be revisited if benchmark fails>`
+- Reavaliar a arquitetura se o projeto passar a comparar multiplos providers ou topologias.

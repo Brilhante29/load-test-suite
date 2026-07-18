@@ -1,0 +1,11 @@
+.git
+.portfolio-control
+.aitmpl
+.claude
+.codex
+benchmarks/results
+openspec/changes
+README.md
+REFERENCES.md
+sdd
+tools

@@ -1,24 +1,26 @@
 id: 29
 name: load-test-suite
 program:
-  id: <ai-evaluation-retrieval|applied-computer-vision|backend-reliability-platform|mlops-data-platform|delivery-observability-infra>
-  narrative_fit: <how this repo strengthens the program story>
+  id: delivery-observability-infra
+  narrative_fit: Prova uma camada reutilizavel de carga para comparar o p95 de um alvo HTTP sob niveis controlados de VUs.
   shared_assets:
-    - <program-level reusable asset>
-status: scaffold
-claim: suite reutilizavel de carga
-stack: []
+    - k6 load profiles
+    - benchmark result schema
+    - Docker and CI validation
+status: benchmarked
+claim: Uma suite Dockerizada mede uma curva p95 reproduzivel de um alvo HTTP local sob 1, 5, 10 e 20 VUs.
+stack: [go, k6, javascript, docker]
 language_profile:
-  primary: <python|java|go|typescript|angular|nextjs|terraform|spring-kotlin-backend|fastapi-backend|go-backend|node-typescript-backend>
-  secondary: []
-  reason: <why this profile governs the repo>
+  primary: go-backend
+  secondary: [javascript]
+  reason: Go fornece um alvo HTTP estatico e de baixo overhead; JavaScript e a linguagem nativa dos cenarios k6.
 decision_brain:
   agentic_spec:
     source: .portfolio/decision-brain/agentic-spec-governance.yaml
     spec_store: portfolio-reuse-kit
     schema: portfolio-system
     project_config: openspec/config.yaml
-    component_pack: <default-portfolio-project|ai-evaluation-retrieval|applied-computer-vision|backend-reliability-platform|mlops-data-platform|delivery-observability-infra>
+    component_pack: delivery-observability-infra
     artifact_graph:
       - intent->portfolio-impact->architecture-record
       - architecture-record+portfolio-impact->component-pack
@@ -27,55 +29,63 @@ decision_brain:
     mode: principal-agent-orchestrated
     source: .portfolio/decision-brain/agent-graph.yaml
     handoff: sdd/agent-handoff.md
-    local_first_runtime: docker+kumo-when-cloud-behavior-is-needed
+    local_first_runtime: docker
   reuse_improvement_loop:
     source: .portfolio/decision-brain/reuse-improvement-loop.yaml
     review_path: sdd/reuse-improvement-review.md
-    current_status: pending
+    current_status: recorded
   principles:
-    coupling_rule: <domain/use cases do not depend on framework, database, broker, cloud SDK, transport, or UI>
+    coupling_rule: O modulo do alvo depende apenas da biblioteca padrao; o cenario e o relatorio nao dependem do alvo por import.
     solid: [srp, ocp, lsp, isp, dip]
-    simplicity_rule: <KISS/YAGNI rule for this repo>
-    testability_rule: <how use cases run without transport/infrastructure>
+    simplicity_rule: Um binario HTTP, um perfil k6 e um relatorio JSON bastam para provar o claim.
+    testability_rule: O handler Go e testado com httptest sem Docker; o contrato do cenario e validado no build e no k6.
     rejected_overengineering:
-      - <pattern/tool/abstraction rejected>
-  stack_profile: <spring-kotlin-backend|fastapi-backend|go-backend|node-typescript-backend|angular|nextjs|python-ml|terraform>
-  api_style: <rest-http|graphql|grpc|websocket|sse|cli>
-  messaging: <none|outbox-only|rabbitmq|kafka|redis-streams|nats>
+      - Microservicos e broker, porque o benchmark mede HTTP sincrono local.
+      - Framework HTTP Go, porque net/http cobre o alvo sem custo de dependencia.
+  stack_profile: go-backend
+  api_style: rest-http
+  messaging: none
   cloud:
-    mode: <none|kumo-local-first|adapter-fake|real-cloud-required>
-    local_provider: kumo
-    real_provider_target: <aws|none|other>
+    mode: none
+    local_provider: none
+    real_provider_target: none
     emulated_services: []
-    adapter_rule: <ports/adapters keep cloud SDK outside domain/use cases>
-    config_switch: CLOUD_PROVIDER=kumo|aws
+    adapter_rule: Nao ha dependencia cloud; um alvo remoto pode ser fornecido por TARGET_URL sem alterar o cenario.
+    config_switch: TARGET_URL=http://127.0.0.1:8080/health
     unsupported_behaviors: []
-  database: <postgresql|sqlite|redis|qdrant|duckdb|none|other>
-  runtime: <runtime decision>
-  library_policy: <why selected libs fit the problem and benchmark>
+  database: none
+  runtime: Docker image grafana/k6 contendo o binario Go estatico e o cenario JavaScript.
+  library_policy: Usar apenas net/http no alvo e as APIs nativas de k6; nenhuma dependencia de aplicacao e necessaria.
   record_path: sdd/technical-decision.md
   rejected_options:
-    - option: <alternative stack/broker/api/cloud/library>
-      reason: <why it was not chosen>
+    - option: Python HTTP server
+      reason: Adicionaria runtime e dependencia de interpretador ao alvo sem aumentar o sinal.
+    - option: Node.js HTTP server
+      reason: O alvo deve permanecer minimo e o k6 ja cobre a parte JavaScript da ferramenta.
 architecture:
-  style: <mvc|layered|modular-monolith|clean-architecture|hexagonal|cqrs-event-sourcing|event-driven|mvvm|pipeline|serverless|microservices>
-  reason: <why this problem and benchmark fit this architecture>
+  style: modular-monolith
+  reason: O repositorio tem tres modulos coesos, alvo, cenario e relatorio, com um unico caminho Docker e sem custo distribuido artificial.
   problem_forces:
-    domain_complexity: <low|medium|high>
-    integration_pressure: <low|medium|high>
-    ui_state_complexity: <none|low|medium|high>
-    data_or_ml_reproducibility: <low|medium|high>
-    auditability: <low|medium|high>
-    throughput_or_async: <low|medium|high>
-    independent_deployability: <low|medium|high>
-  dependency_rule: <dependency direction rule>
+    domain_complexity: low
+    integration_pressure: medium
+    ui_state_complexity: none
+    data_or_ml_reproducibility: high
+    auditability: low
+    throughput_or_async: medium
+    independent_deployability: low
+  dependency_rule: O alvo Go nao conhece k6 ou o relatorio; o cenario conhece apenas o contrato HTTP; o relatorio consome metricas do k6.
   boundaries:
-    - <module/layer/context boundary>
+    - internal/target: contrato e handler HTTP minimo.
+    - k6/scenarios: niveis de VUs, duracoes e requests.
+    - k6/report: transformacao do summary em resultado versionavel.
+    - scripts: adaptadores de execucao Docker para PowerShell e POSIX.
   rejected_alternatives:
-    - style: <alternative>
-      reason: <why it was not chosen>
+    - style: hexagonal
+      reason: Haveria portas adicionais sem integracoes reais para trocar; as fronteiras modulares ja isolam o alvo e o benchmark.
+    - style: microservices
+      reason: Um segundo processo de aplicacao aumentaria a variancia e a complexidade do caminho local.
 design_system:
-  tokens: design-system/tokens.yaml
+  tokens: .portfolio/design-system/tokens.yaml
   readme_components:
     - readme_header
     - benchmark_card
@@ -102,11 +112,44 @@ reuse:
     - skills
 benchmark:
   primary_metric: p95_curve
-  unit: unit
-  command: pending
-  result_path: benchmarks/results/*.json
+  unit: ms
+  command: "pwsh -NoProfile -File scripts/benchmark.ps1 -Build -ResultName p95-curve-baseline.json"
+  result_path: benchmarks/results/p95-curve-baseline.json
 release:
-  docker: pending
+  docker: "docker build -t load-test-suite:local ."
   no_secret_default_path: true
   readme_has_number: true
   references_documented: true
+schema: portfolio-system
+references:
+  - portfolio-reuse-kit
+context: |
+  Project: load-test-suite (#29)
+  Source of truth:
+    - Use `.portfolio/` as the local snapshot of portfolio-reuse-kit.
+    - Use `project.yaml` for the public project contract.
+    - Use `sdd/` for lightweight artifacts that must exist even without OpenSpec installed.
+  Core rules:
+    - Prove one measurable claim.
+    - Select one component pack from `.portfolio/component-packs/manifest.yaml`.
+    - Record architecture, stack, API, messaging, cloud, database/runtime, and library choices with rejected alternatives.
+    - Keep target and benchmark boundaries explicit.
+    - Prefer local-first execution and no paid secret.
+    - Resolve reuse improvements as patch-now, backlog, or reject.
+rules:
+  reference-reuse:
+    - Prioritize local skills and `.portfolio/`; use external repositories only as attributed references.
+  intent:
+    - Keep the claim measurable and README-ready.
+  portfolio-impact:
+    - Explain how this repo strengthens the delivery and observability program.
+  architecture-record:
+    - Include SOLID, LSP, KISS, YAGNI, dependency inversion, and testability evidence.
+  component-pack:
+    - Select from `.portfolio/component-packs/manifest.yaml`.
+  reuse-delta:
+    - Record whether the kit improved because of this project.
+  benchmark-proof:
+    - Include metric, unit, command, fixture, JSON path, and README result.
+  verification:
+    - Verify Docker, tests, benchmark JSON, README, references, reuse review, and validation.

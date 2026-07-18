@@ -6,58 +6,57 @@
 
 ## Claim
 
-Este projeto prova que: suite reutilizavel de carga.
+Uma suite Dockerizada mede uma curva p95 reproduzivel de um alvo HTTP local
+sob 1, 5, 10 e 20 VUs.
 
 ## Stack
 
-k6, javascript, docker
+Go standard library, k6 0.49.0, JavaScript, Docker e GitHub Actions.
 
 ## User-visible output
 
-- Docker command: pending
-- README opens with: # #29 load-test-suite
-- Benchmark table: p95_curve
+- `docker build -t load-test-suite:local .`
+- `docker run --rm -v ...:/results load-test-suite:local benchmark`
+- `benchmarks/results/p95-curve-baseline.json`
+- README com uma linha para cada nivel de VUs.
 
 ## Scope
 
 In:
 
-- Implementar o menor produto funcional que prove o claim.
-- Rodar por Docker.
-- Gerar benchmark JSON reproduzivel.
+- Alvo HTTP local minimo e estavel.
+- Cenario k6 reutilizavel com niveis configuraveis no perfil.
+- Relatorio JSON com p95, requests, erros, imagem e ambiente.
+- Docker, CI, testes e validacao estrita.
 
 Out:
 
-- Publicar repo antes do primeiro resultado numerico.
-- Depender de segredo pago para o caminho default.
+- Integracao com cloud, banco, broker ou segredo pago.
+- Dashboard persistente ou comparacao estatistica entre maquinas.
+- Publicacao ou push remoto.
 
 ## Architecture
 
-`	xt
-client -> app -> domain -> adapters -> benchmark output
-`
+`Docker entrypoint -> target module + k6 scenario -> report module -> JSON`
+
+O modular monolith separa os modulos por responsabilidade sem introduzir
+deploys ou processos externos adicionais.
 
 ## Benchmark
 
-Primary metric:
-
-- name: p95_curve
-- target: first reproducible baseline
-- command: pending
-- result file: enchmarks/results/*.json
-
-## Dataset or fixture
-
-- source: pending
-- size: pending
-- license: pending
-- deterministic seed: 42
+- name: `p95_curve`
+- unit: `ms`
+- levels: 1, 5, 10, 20 VUs
+- fixture: `GET /health`, corpo JSON estavel, seed 42 no endpoint `/payload`
+- warmup: 1s
+- sample window: 3s por nivel
+- result: `benchmarks/results/p95-curve-baseline.json`
 
 ## Definition of done
 
-- [ ] Docker command works from clean clone.
-- [ ] README starts with project number and benchmark result.
-- [ ] Benchmark command writes JSON result.
-- [ ] Tests cover core behavior.
-- [ ] REFERENCES.md explains reuse.
-- [ ] No secret or paid credential required for default demo.
+- [x] Docker build e Docker run funcionam a partir do checkout.
+- [x] README inicia com numero, claim e resultado versionado.
+- [x] Benchmark escreve JSON compativel com o contrato.
+- [x] Testes cobrem o contrato HTTP principal.
+- [x] REFERENCES.md explica o reuso.
+- [x] Nenhum segredo ou credencial paga e necessario.
