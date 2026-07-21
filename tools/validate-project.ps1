@@ -36,6 +36,7 @@ $requiredFiles = @(
   "internal/target/handler.go",
   "internal/target/handler_test.go",
   "k6/p95-curve.js",
+  "k6/readiness.js",
   "k6/scenarios/p95-curve.js",
   "k6/report/result.js",
   "scripts/entrypoint.sh",
@@ -53,6 +54,12 @@ $requiredFiles = @(
   "openspec/changes/implement-load-test-suite/verification.md"
 )
 foreach ($file in $requiredFiles) { Require-File $file }
+if (Test-Path -LiteralPath (Join-Path $root ".git") -PathType Container) {
+  $trackedFiles = @(git -C $root ls-files)
+  foreach ($file in $requiredFiles) {
+    if ($file.Replace("\", "/") -notin $trackedFiles) { Fail "Required file is not tracked by Git: $file" }
+  }
+}
 
 $readmePath = Join-Path $root "README.md"
 if (Test-Path -LiteralPath $readmePath) {
@@ -111,6 +118,10 @@ foreach ($file in $resultFiles) {
     if ($result.project -ne "load-test-suite") { Fail "$($file.Name) has wrong project" }
     if ($result.metric -ne "p95_curve") { Fail "$($file.Name) has wrong metric" }
     if ($result.curve.Count -ne 4) { Fail "$($file.Name) must contain four VU levels" }
+    foreach ($point in @($result.curve)) {
+      if ([double]$point.requests -le 0) { Fail "$($file.Name) has a VU level with no requests" }
+      if ([double]$point.p95_ms -le 0) { Fail "$($file.Name) has a VU level with invalid p95" }
+    }
     if ([string]::IsNullOrWhiteSpace([string]$result.environment.image_tag)) { Fail "$($file.Name) missing image metadata" }
     if ([string]::IsNullOrWhiteSpace([string]$result.environment.runtime)) { Fail "$($file.Name) missing runtime metadata" }
   } catch {
@@ -124,14 +135,14 @@ try {
     Run-Checked "go test" { go test ./... }
     Run-Checked "go vet" { go vet ./... }
   } elseif (Get-Command docker -ErrorAction SilentlyContinue) {
-    $volume = "${root}:/src"
-    Run-Checked "container go test" { docker run --rm -v $volume -w /src golang:1.25-alpine go test ./... }
+$volume = "${root}:/src"
+    Run-Checked "container go test" { docker run --rm -v load-test-suite-go-build-cache:/root/.cache/go-build -v $volume -w /src golang:1.25-alpine go test -vet=off ./... }
   } else {
     Fail "Neither Go nor Docker is available for Go validation"
   }
 
   if (Get-Command node -ErrorAction SilentlyContinue) {
-    foreach ($script in @("k6/p95-curve.js", "k6/scenarios/p95-curve.js", "k6/report/result.js")) {
+    foreach ($script in @("k6/p95-curve.js", "k6/readiness.js", "k6/scenarios/p95-curve.js", "k6/report/result.js")) {
       Run-Checked "node syntax $script" { node --check $script }
     }
   } else {

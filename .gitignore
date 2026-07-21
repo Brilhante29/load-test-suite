@@ -5,5 +5,5 @@ __pycache__/
 benchmarks/results/*.json
 !benchmarks/results/p95-curve-baseline.json
 dist/
-target/
+/target/
 build/

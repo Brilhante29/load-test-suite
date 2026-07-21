@@ -4,22 +4,32 @@ function values(data, name) {
   return data.metrics[name] ? data.metrics[name].values : {};
 }
 
-function numberOrZero(value) {
-  return typeof value === "number" && Number.isFinite(value) ? value : 0;
+function requiredNumber(value, metric) {
+  if (typeof value !== "number" || !Number.isFinite(value)) {
+    throw new Error(`missing or invalid k6 metric: ${metric}`);
+  }
+  return value;
 }
 
 export function buildResult(data, metadata) {
   const curve = levels.map((vus) => {
-    const duration = values(data, `request_duration_vus_${vus}`);
-    const requestCount = values(data, `requests_vus_${vus}`);
-    const errorRate = values(data, `request_error_vus_${vus}`);
+    const durationName = `request_duration_vus_${vus}`;
+    const requestName = `requests_vus_${vus}`;
+    const errorName = `request_error_vus_${vus}`;
+    const duration = values(data, durationName);
+    const requestCount = values(data, requestName);
+    const errorRate = values(data, errorName);
+    const requests = requiredNumber(requestCount.count, `${requestName}.count`);
+    if (requests <= 0) {
+      throw new Error(`benchmark level ${vus} produced no requests`);
+    }
     return {
       vus,
-      requests: numberOrZero(requestCount.count),
-      p50_ms: numberOrZero(duration.med),
-      p90_ms: numberOrZero(duration["p(90)"]),
-      p95_ms: numberOrZero(duration["p(95)"]),
-      error_rate: numberOrZero(errorRate.rate)
+      requests,
+      p50_ms: requiredNumber(duration.med, `${durationName}.med`),
+      p90_ms: requiredNumber(duration["p(90)"], `${durationName}.p90`),
+      p95_ms: requiredNumber(duration["p(95)"], `${durationName}.p95`),
+      error_rate: requiredNumber(errorRate.rate, `${errorName}.rate`)
     };
   });
   const p95Values = curve.map((point) => point.p95_ms);
@@ -42,7 +52,7 @@ export function buildResult(data, metadata) {
       total_requests: totalRequests,
       min_p95_ms: minP95,
       max_p95_ms: maxP95,
-      error_rate: totalRequests === 0 ? 1 : totalErrors / totalRequests
+      error_rate: totalErrors / totalRequests
     },
     environment: {
       image_tag: metadata.imageTag,

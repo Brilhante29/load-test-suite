@@ -7,7 +7,7 @@ program:
     - k6 load profiles
     - benchmark result schema
     - Docker and CI validation
-status: published
+status: benchmarked
 claim: Uma suite Dockerizada mede uma curva p95 reproduzivel de um alvo HTTP local sob 1, 5, 10 e 20 VUs.
 stack: [go, k6, javascript, docker]
 language_profile:

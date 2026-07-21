@@ -19,7 +19,21 @@ cleanup() {
 }
 trap cleanup EXIT INT TERM
 
-sleep 0.2
+ready=0
+attempt=0
+while [ "$attempt" -lt 30 ]; do
+  if k6 run --quiet -e "TARGET_URL=$TARGET_URL" /work/k6/readiness.js >/dev/null 2>&1; then
+    ready=1
+    break
+  fi
+  attempt=$((attempt + 1))
+  sleep 0.1
+done
+if [ "$ready" -ne 1 ]; then
+  echo "load target did not become ready" >&2
+  exit 1
+fi
+
 set +e
 k6 run /work/k6/p95-curve.js
 status=$?
