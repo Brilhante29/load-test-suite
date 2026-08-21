@@ -54,7 +54,7 @@ decision_brain:
     config_switch: TARGET_URL=http://127.0.0.1:8080/health
     unsupported_behaviors: []
   database: none
-  runtime: Docker image grafana/k6 contendo o binario Go estatico e o cenario JavaScript.
+  runtime: Docker image grafana/k6 2.1.0 contendo o binario Go 1.26.6 estatico e o cenario JavaScript.
   library_policy: Usar apenas net/http no alvo e as APIs nativas de k6; nenhuma dependencia de aplicacao e necessaria.
   record_path: sdd/technical-decision.md
   rejected_options:
@@ -111,10 +111,11 @@ reuse:
     - templates
     - skills
 benchmark:
-  primary_metric: p95_curve
+  primary_metric: p95_ms_at_max_vus
   unit: ms
-  command: "pwsh -NoProfile -File scripts/benchmark.ps1 -Build -ResultName p95-curve-baseline.json"
-  result_path: benchmarks/results/p95-curve-baseline.json
+  command: "pwsh -NoProfile -File scripts/publish-benchmark.ps1 -Build"
+  result_path: benchmarks/results/29-p95-curve-v1.json
+  publication_result_path: benchmarks/publication/29-p95-curve-v2.json
 release:
   docker: "docker build -t load-test-suite:local ."
   no_secret_default_path: true

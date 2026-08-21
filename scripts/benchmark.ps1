@@ -19,7 +19,7 @@ if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($imageId)) {
   throw "Docker image '$ImageTag' was not found. Use -Build or build it first."
 }
 
-$commit = (& git -C $root rev-parse --short HEAD 2>$null)
+$commit = (& git -C $root rev-parse HEAD 2>$null)
 if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($commit)) { $commit = "working-tree" }
 $command = "docker run --rm -v <repo>/benchmarks/results:/results -e RESULT_FILE_NAME=$ResultName $ImageTag benchmark"
 

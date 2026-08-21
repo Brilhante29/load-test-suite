@@ -11,13 +11,14 @@ sob 1, 5, 10 e 20 VUs.
 
 ## Stack
 
-Go standard library, k6 0.49.0, JavaScript, Docker e GitHub Actions.
+Go 1.26.6 standard library, k6 2.1.0, JavaScript, Docker e GitHub Actions.
 
 ## User-visible output
 
 - `docker build -t load-test-suite:local .`
 - `docker run --rm -v ...:/results load-test-suite:local benchmark`
-- `benchmarks/results/p95-curve-baseline.json`
+- `benchmarks/results/29-p95-curve-v1.json`
+- `benchmarks/publication/29-p95-curve-v2.json`
 - README com uma linha para cada nivel de VUs.
 
 ## Scope
@@ -33,7 +34,7 @@ Out:
 
 - Integracao com cloud, banco, broker ou segredo pago.
 - Dashboard persistente ou comparacao estatistica entre maquinas.
-- Publicacao ou push remoto.
+- Dashboard persistente ou execucao de carga distribuida.
 
 ## Architecture
 
@@ -44,13 +45,15 @@ deploys ou processos externos adicionais.
 
 ## Benchmark
 
-- name: `p95_curve`
+- name: `p95_ms_at_max_vus`
 - unit: `ms`
 - levels: 1, 5, 10, 20 VUs
-- fixture: `GET /health`, corpo JSON estavel, seed 42 no endpoint `/payload`
+- fixture: `GET /work`, quatro slots e 2 ms de servico
 - warmup: 1s
 - sample window: 3s por nivel
-- result: `benchmarks/results/p95-curve-baseline.json`
+- repetitions: 3
+- result: `benchmarks/results/29-p95-curve-v1.json`
+- publication: `benchmarks/publication/29-p95-curve-v2.json`
 
 ## Definition of done
 

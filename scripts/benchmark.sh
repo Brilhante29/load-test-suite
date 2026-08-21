@@ -12,7 +12,7 @@ if [ "${BUILD_IMAGE:-0}" = "1" ]; then
 fi
 
 image_id=$(docker image inspect --format '{{.Id}}' "$image_tag")
-commit=$(git -C "$root" rev-parse --short HEAD 2>/dev/null || printf '%s' working-tree)
+commit=$(git -C "$root" rev-parse HEAD 2>/dev/null || printf '%s' working-tree)
 command="docker run --rm -v <repo>/benchmarks/results:/results -e RESULT_FILE_NAME=$result_name $image_tag benchmark"
 
 docker run --rm \

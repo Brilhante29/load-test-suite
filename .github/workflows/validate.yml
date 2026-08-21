@@ -4,32 +4,54 @@ on:
   push:
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
   validate:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+          persist-credentials: false
       - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5.5.0
         with:
-          go-version: "1.25.x"
+          go-version: "1.26.6"
+          cache: false
+      - uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # v5.6.0
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install validation dependency
+        run: python -m pip install --disable-pip-version-check -r requirements-validation.txt
       - name: Test and vet Go target
         run: |
           go test ./...
           go vet ./...
+          test -z "$(gofmt -l cmd internal)"
       - name: Check k6 JavaScript syntax
         run: node --check k6/p95-curve.js && node --check k6/scenarios/p95-curve.js && node --check k6/report/result.js
+      - name: Validate committed publication evidence
+        run: python tools/validate-publication.py --require-git
       - name: Build Docker image
         run: docker build -t load-test-suite:ci .
-      - name: Run benchmark in Docker
+      - name: Run isolated CI smoke benchmark
         run: |
-          mkdir -p benchmarks/results
+          mkdir -p "$RUNNER_TEMP/load-test-results"
           docker run --rm \
-            -v "$PWD/benchmarks/results:/results" \
+            -v "$RUNNER_TEMP/load-test-results:/results" \
             -e RESULT_FILE_NAME=p95-curve-ci.json \
             -e BENCHMARK_IMAGE=load-test-suite:ci \
             -e BENCHMARK_IMAGE_ID=ci \
             -e BENCHMARK_COMMIT=${{ github.sha }} \
+            -e REPEATS=1 \
+            -e WARMUP_SECONDS=1 \
+            -e SAMPLE_SECONDS=1 \
             load-test-suite:ci benchmark
+          jq -e '.repeat == 1 and .failures == 0 and (.curve | length) == 4' \
+            "$RUNNER_TEMP/load-test-results/p95-curve-ci.json"
       - name: Strict project validation
         shell: pwsh
         run: ./tools/validate-project.ps1 -SkipDocker -Strict

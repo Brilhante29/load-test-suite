@@ -11,7 +11,7 @@ project-specific code and benchmark fixture are original to #29.
 | `.portfolio/decision-brain/` | Stack, API, messaging, simplicity, and agent workflow decisions. |
 | `.portfolio/harness/` and `contracts/benchmark-result.schema.json` | Metric naming and JSON result contract. |
 | `.portfolio/templates/` and `.portfolio/sdd/templates/` | Repository layout, Docker, CI, SDD, and release conventions. |
-| Grafana k6 | Runtime load generator used through the pinned Docker image `grafana/k6:0.49.0`. |
+| Grafana k6 | Runtime load generator used through the pinned Docker image `grafana/k6:2.1.0`. |
 
 No external source code was copied into the target or report. Go uses only the
 standard library. The k6 scenario uses the public k6 HTTP and metric APIs.

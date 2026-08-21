@@ -7,8 +7,8 @@ Project: `29 - load-test-suite`
 - Objective: medir uma curva p95 local sob quatro niveis de VUs.
 - Portfolio program: `delivery-observability-infra`.
 - Public proof claim: benchmark Dockerizado com resultado JSON versionado.
-- Primary benchmark: `p95_curve` em ms.
-- Default runnable path: `docker build` seguido de `scripts/benchmark.ps1` ou `scripts/benchmark.sh`.
+- Primary benchmark: `p95_ms_at_max_vus` em ms, com curva por VU.
+- Default publication path: `scripts/publish-benchmark.ps1 -Build`.
 
 ## Subagent Decisions
 
@@ -46,12 +46,13 @@ Project: `29 - load-test-suite`
 
 ## Benchmark Handoff
 
-- Metric: `p95_curve`.
+- Metric: `p95_ms_at_max_vus`.
 - Unit: `ms`.
 - Higher or lower is better: lower p95 is better.
-- Command: `pwsh -NoProfile -File scripts/benchmark.ps1 -Build -ResultName p95-curve-baseline.json`.
-- Result path: `benchmarks/results/p95-curve-baseline.json`.
-- Dataset or fixture: `GET /health`, sem dados externos.
+- Command: `pwsh -NoProfile -File scripts/publish-benchmark.ps1 -Build`.
+- Result path: `benchmarks/results/29-p95-curve-v1.json`.
+- Publication path: `benchmarks/publication/29-p95-curve-v2.json`.
+- Dataset or fixture: `GET /work`, quatro slots e 2 ms, sem dados externos.
 
 ## Open Risks
 

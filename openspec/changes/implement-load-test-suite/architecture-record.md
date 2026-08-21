@@ -33,7 +33,7 @@ composicao externa.
 - LSP: qualquer endpoint 2xx com o contrato pode ser ensaiado.
 - ISP: nenhuma interface artificial foi criada para o alvo minimo.
 - DIP: o boundary de processo injeta o handler no servidor; a medicao depende do contrato.
-- KISS/YAGNI: sem compose, broker, banco ou framework sem valor para p95_curve.
+- KISS/YAGNI: sem compose, broker, banco ou framework sem valor para a curva p95.
 
 ## Rejected Alternatives
 

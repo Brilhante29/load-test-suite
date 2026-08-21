@@ -10,7 +10,7 @@ Project: `load-test-suite #29`
 
 Claim: curva p95 de um alvo HTTP sob niveis de VUs.
 
-Benchmark: `p95_curve` em milissegundos.
+Benchmark: `p95_ms_at_max_vus` em milissegundos, mantendo a curva por nivel.
 
 Problem forces:
 
@@ -57,14 +57,15 @@ internal/target/       # contrato e handler testavel
 k6/scenarios/           # niveis de VUs e metricas customizadas
 k6/report/              # curva e JSON de resultado
 scripts/                # adaptadores Docker PowerShell/POSIX
-benchmarks/results/     # baseline versionado
+benchmarks/results/     # resultado V1 bruto
+benchmarks/publication/ # evidencia V2 com proveniencia
 ```
 
 ## Testing Strategy
 
 - Unit tests: handler Go com `httptest`, sem Docker ou k6.
 - Integration test: o benchmark k6 roda contra o alvo iniciado pelo entrypoint.
-- Benchmark: quatro cenarios sequenciais com thresholds de status e erro.
+- Benchmark: tres curvas de quatro cenarios sequenciais, com thresholds de erro e p95.
 
 ## Consequences
 

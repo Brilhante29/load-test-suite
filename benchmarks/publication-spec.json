@@ -1,0 +1,16 @@
+{
+  "project": "load-test-suite",
+  "benchmark_id": "p95-curve",
+  "primary_metric": "p95_ms_at_max_vus",
+  "v1_path": "benchmarks/results/29-p95-curve-v1.json",
+  "v2_path": "benchmarks/publication/29-p95-curve-v2.json",
+  "config_path": "k6",
+  "fixture_path": "internal/target",
+  "lock_path": "Dockerfile",
+  "repeat": 3,
+  "measured_iterations": 4,
+  "warmup_iterations": 1,
+  "concurrency": 20,
+  "comparability_key": "p95-curve:2.0.0:vus-1-5-10-20:repeats-3:window-3s:workers-4:service-2ms:k6-2.1.0",
+  "readme_values": []
+}

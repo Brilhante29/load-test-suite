@@ -19,7 +19,7 @@ evidencia.
 
 ## Out of Scope
 
-- Cloud, broker, banco, dashboard ou push remoto.
+- Cloud, broker, banco, dashboard ou carga distribuida.
 
 ## Default Demo Path
 
@@ -29,5 +29,5 @@ evidencia.
 
 ## Public Proof
 
-- Benchmark: `p95_curve` em ms.
+- Benchmark: `p95_ms_at_max_vus` em ms, com curva completa por VU.
 - README number: tabela de p95 para 1, 5, 10 e 20 VUs.

@@ -4,6 +4,9 @@ __pycache__/
 .venv/
 benchmarks/results/*.json
 !benchmarks/results/p95-curve-baseline.json
+!benchmarks/results/29-p95-curve-v1.json
+benchmarks/publication/*.json
+!benchmarks/publication/29-p95-curve-v2.json
 dist/
 /target/
 build/

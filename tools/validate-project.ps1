@@ -42,6 +42,11 @@ $requiredFiles = @(
   "scripts/entrypoint.sh",
   "scripts/benchmark.ps1",
   "scripts/benchmark.sh",
+  "scripts/publish-benchmark.ps1",
+  "tools/generate-publication-benchmark.py",
+  "tools/validate-publication.py",
+  "benchmarks/publication-spec.json",
+  "requirements-validation.txt",
   ".github/workflows/validate.yml",
   "sdd/spec.md",
   "sdd/benchmark-plan.md",
@@ -72,11 +77,12 @@ $manifestPath = Join-Path $root "project.yaml"
 if (Test-Path -LiteralPath $manifestPath) {
   $manifest = Get-Content -Raw -LiteralPath $manifestPath
   foreach ($pattern in @(
-    "(?m)^status: benchmarked$",
+    "(?m)^status: (benchmarked|published)$",
     "(?m)^  id: delivery-observability-infra$",
     "(?m)^  primary: go-backend$",
-    "(?m)^  primary_metric: p95_curve$",
-    "(?m)^  result_path: benchmarks/results/p95-curve-baseline.json$"
+    "(?m)^  primary_metric: p95_ms_at_max_vus$",
+    "(?m)^  result_path: benchmarks/results/29-p95-curve-v1.json$",
+    "(?m)^  publication_result_path: benchmarks/publication/29-p95-curve-v2.json$"
   )) {
     if ($manifest -notmatch $pattern) { Fail "project.yaml missing expected contract: $pattern" }
   }
@@ -105,19 +111,23 @@ $resultFiles = if (Test-Path -LiteralPath $resultDir -PathType Container) {
 if ($resultFiles.Count -eq 0) {
   Fail "Missing benchmark JSON under benchmarks/results"
 }
-if (-not (Test-Path -LiteralPath (Join-Path $resultDir "p95-curve-baseline.json") -PathType Leaf)) {
-  Fail "Missing versioned baseline p95-curve-baseline.json"
+$canonicalResult = Join-Path $resultDir "29-p95-curve-v1.json"
+if (-not (Test-Path -LiteralPath $canonicalResult -PathType Leaf)) {
+  if ($manifest -match "(?m)^status: published$") { Fail "Published project is missing 29-p95-curve-v1.json" }
 }
 
-foreach ($file in $resultFiles) {
+foreach ($file in @($resultFiles | Where-Object Name -EQ "29-p95-curve-v1.json")) {
   try {
     $result = Get-Content -Raw -LiteralPath $file.FullName | ConvertFrom-Json
     foreach ($property in @("project", "metric", "value", "unit", "timestamp", "command", "environment", "curve")) {
       if ($null -eq $result.PSObject.Properties[$property]) { Fail "$($file.Name) missing JSON property: $property" }
     }
     if ($result.project -ne "load-test-suite") { Fail "$($file.Name) has wrong project" }
-    if ($result.metric -ne "p95_curve") { Fail "$($file.Name) has wrong metric" }
+    if ($result.metric -ne "p95_ms_at_max_vus") { Fail "$($file.Name) has wrong metric" }
+    if ([int]$result.repeat -ne 3) { Fail "$($file.Name) must contain three repetitions" }
+    if ($result.samples.Count -ne 3) { Fail "$($file.Name) must contain one max-VU p95 sample per repetition" }
     if ($result.curve.Count -ne 4) { Fail "$($file.Name) must contain four VU levels" }
+    if ($result.runs.Count -ne 3) { Fail "$($file.Name) must preserve all three raw curves" }
     foreach ($point in @($result.curve)) {
       if ([double]$point.requests -le 0) { Fail "$($file.Name) has a VU level with no requests" }
       if ([double]$point.p95_ms -le 0) { Fail "$($file.Name) has a VU level with invalid p95" }
@@ -129,6 +139,11 @@ foreach ($file in $resultFiles) {
   }
 }
 
+$publicationPath = Join-Path $root "benchmarks/publication/29-p95-curve-v2.json"
+if ($manifest -match "(?m)^status: published$" -and -not (Test-Path -LiteralPath $publicationPath -PathType Leaf)) {
+  Fail "Published project is missing benchmark V2 evidence"
+}
+
 Push-Location -LiteralPath $root
 try {
   if (Get-Command go -ErrorAction SilentlyContinue) {
@@ -136,7 +151,7 @@ try {
     Run-Checked "go vet" { go vet ./... }
   } elseif (Get-Command docker -ErrorAction SilentlyContinue) {
 $volume = "${root}:/src"
-    Run-Checked "container go test" { docker run --rm -v load-test-suite-go-build-cache:/root/.cache/go-build -v $volume -w /src golang:1.25-alpine go test -vet=off ./... }
+    Run-Checked "container go test" { docker run --rm -v load-test-suite-go-build-cache:/root/.cache/go-build -v $volume -w /src golang:1.26.6-alpine go test -vet=off ./... }
   } else {
     Fail "Neither Go nor Docker is available for Go validation"
   }
@@ -147,6 +162,10 @@ $volume = "${root}:/src"
     }
   } else {
     Fail "Node.js is required for strict k6 syntax validation"
+  }
+
+  if (Test-Path -LiteralPath $publicationPath -PathType Leaf) {
+    Run-Checked "publication evidence" { python tools/validate-publication.py --require-git }
   }
 } finally {
   Pop-Location

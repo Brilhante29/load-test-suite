@@ -18,11 +18,11 @@ Portfolio program: `delivery-observability-infra`.
 
 Public signal: Go de baixo overhead, k6, Docker, CI e benchmark reproduzivel.
 
-Benchmark: `p95_curve`.
+Benchmark: `p95_ms_at_max_vus`, preservando a curva completa.
 
 ## Selected Option
 
-Selected: Go standard library como alvo estatico e grafana/k6 0.49.0 como
+Selected: Go standard library como alvo controlado e grafana/k6 2.1.0 como
 executor.
 
 Reason:
@@ -59,7 +59,7 @@ SOLID application:
 Simplicity:
 
 - KISS: um entrypoint inicia o alvo e o k6, sem compose ou broker.
-- YAGNI: nao foram adicionados banco, observabilidade ou dashboard porque nao provam p95_curve.
+- YAGNI: nao foram adicionados banco, observabilidade ou dashboard porque nao provam a curva p95.
 - DRY: niveis e metricas sao descritos uma vez no cenario e formatados uma vez no relatorio.
 
 Testability evidence:
