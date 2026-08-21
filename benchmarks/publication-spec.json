@@ -12,5 +12,5 @@
   "warmup_iterations": 1,
   "concurrency": 20,
   "comparability_key": "p95-curve:2.0.0:vus-1-5-10-20:repeats-3:window-3s:workers-4:service-2ms:k6-2.1.0",
-  "readme_values": []
+  "readme_values": [15.14099235, 41234]
 }

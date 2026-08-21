@@ -1,0 +1,210 @@
+{
+  "project": "load-test-suite",
+  "metric": "p95_ms_at_max_vus",
+  "value": 15.14099235,
+  "unit": "ms",
+  "timestamp": "2026-08-21T05:31:33.624Z",
+  "command": "docker run --rm -v <repo>/benchmarks/results:/results -e RESULT_FILE_NAME=29-p95-curve-v1.json load-test-suite:local benchmark",
+  "repeat": 3,
+  "samples": [
+    14.9140293,
+    15.14099235,
+    15.241676199999999
+  ],
+  "failures": 0,
+  "summary": {
+    "levels": 4,
+    "repeats": 3,
+    "max_vus": 20,
+    "total_requests": 41234,
+    "median_p95_ms_at_max_vus": 15.14099235,
+    "min_p95_ms_at_max_vus": 14.9140293,
+    "max_p95_ms_at_max_vus": 15.241676199999999,
+    "error_rate": 0
+  },
+  "environment": {
+    "image_tag": "load-test-suite:local",
+    "image_id": "sha256:64f9c11c4de6a65cde252ccbb959091dd9b55e089e8c2499c070e14912af34f6",
+    "source_commit": "3146602070006665950e42aeddc5aca19a8670db",
+    "runtime": "docker",
+    "k6_image": "grafana/k6:2.1.0",
+    "target_url": "http://127.0.0.1:8080/work",
+    "warmup_seconds": "1",
+    "sample_seconds": "3",
+    "vus_levels": "1,5,10,20",
+    "repeats": "3",
+    "target_worker_slots": "4",
+    "target_service_time_ms": "2"
+  },
+  "curve": [
+    {
+      "vus": 1,
+      "requests": 2640,
+      "requests_per_second": 293.3333333333333,
+      "p50_ms": 3.0400235,
+      "p90_ms": 3.2571504,
+      "p95_ms": 3.3460748,
+      "p95_samples_ms": [
+        3.484281,
+        3.3460748,
+        3.32886975
+      ],
+      "error_rate": 0
+    },
+    {
+      "vus": 5,
+      "requests": 12456,
+      "requests_per_second": 1384,
+      "p50_ms": 3.019971,
+      "p90_ms": 4.659914,
+      "p95_ms": 5.05369405,
+      "p95_samples_ms": [
+        5.022947,
+        5.05369405,
+        5.0802276
+      ],
+      "error_rate": 0
+    },
+    {
+      "vus": 10,
+      "requests": 13074,
+      "requests_per_second": 1452.6666666666667,
+      "p50_ms": 6.474389,
+      "p90_ms": 8.666909,
+      "p95_ms": 8.950798,
+      "p95_samples_ms": [
+        9.1766915,
+        8.8923804,
+        8.950798
+      ],
+      "error_rate": 0
+    },
+    {
+      "vus": 20,
+      "requests": 13064,
+      "requests_per_second": 1451.5555555555557,
+      "p50_ms": 13.493111,
+      "p90_ms": 14.8287503,
+      "p95_ms": 15.14099235,
+      "p95_samples_ms": [
+        14.9140293,
+        15.14099235,
+        15.241676199999999
+      ],
+      "error_rate": 0
+    }
+  ],
+  "runs": [
+    {
+      "repeat": 1,
+      "curve": [
+        {
+          "vus": 1,
+          "requests": 861,
+          "p50_ms": 3.133271,
+          "p90_ms": 3.388837,
+          "p95_ms": 3.484281,
+          "error_rate": 0
+        },
+        {
+          "vus": 5,
+          "requests": 4161,
+          "p50_ms": 3.019971,
+          "p90_ms": 4.659914,
+          "p95_ms": 5.022947,
+          "error_rate": 0
+        },
+        {
+          "vus": 10,
+          "requests": 4320,
+          "p50_ms": 6.493841,
+          "p90_ms": 8.6799823,
+          "p95_ms": 9.1766915,
+          "error_rate": 0
+        },
+        {
+          "vus": 20,
+          "requests": 4382,
+          "p50_ms": 13.459316000000001,
+          "p90_ms": 14.6288459,
+          "p95_ms": 14.9140293,
+          "error_rate": 0
+        }
+      ]
+    },
+    {
+      "repeat": 2,
+      "curve": [
+        {
+          "vus": 1,
+          "requests": 889,
+          "p50_ms": 3.036952,
+          "p90_ms": 3.2571504,
+          "p95_ms": 3.3460748,
+          "error_rate": 0
+        },
+        {
+          "vus": 5,
+          "requests": 4162,
+          "p50_ms": 3.0133085,
+          "p90_ms": 4.6974366000000005,
+          "p95_ms": 5.05369405,
+          "error_rate": 0
+        },
+        {
+          "vus": 10,
+          "requests": 4393,
+          "p50_ms": 6.437477,
+          "p90_ms": 8.566169,
+          "p95_ms": 8.8923804,
+          "error_rate": 0
+        },
+        {
+          "vus": 20,
+          "requests": 4360,
+          "p50_ms": 13.493111,
+          "p90_ms": 14.8287503,
+          "p95_ms": 15.14099235,
+          "error_rate": 0
+        }
+      ]
+    },
+    {
+      "repeat": 3,
+      "curve": [
+        {
+          "vus": 1,
+          "requests": 890,
+          "p50_ms": 3.0400235,
+          "p90_ms": 3.2466505000000003,
+          "p95_ms": 3.32886975,
+          "error_rate": 0
+        },
+        {
+          "vus": 5,
+          "requests": 4133,
+          "p50_ms": 3.04481,
+          "p90_ms": 4.6566242,
+          "p95_ms": 5.0802276,
+          "error_rate": 0
+        },
+        {
+          "vus": 10,
+          "requests": 4361,
+          "p50_ms": 6.474389,
+          "p90_ms": 8.666909,
+          "p95_ms": 8.950798,
+          "error_rate": 0
+        },
+        {
+          "vus": 20,
+          "requests": 4322,
+          "p50_ms": 13.6546845,
+          "p90_ms": 14.9148605,
+          "p95_ms": 15.241676199999999,
+          "error_rate": 0
+        }
+      ]
+    }
+  ]
+}

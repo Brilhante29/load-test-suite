@@ -1,10 +1,30 @@
 # #29 load-test-suite
 
-**Publication protocol:** median p95 at 20 VUs across three independent curves; exact result is generated only from a clean source commit.
+[![validate](https://github.com/Brilhante29/load-test-suite/actions/workflows/validate.yml/badge.svg)](https://github.com/Brilhante29/load-test-suite/actions/workflows/validate.yml)
 
-**Proves:** a reusable Dockerized k6 suite measures HTTP tail latency and throughput across 1, 5, 10, and 20 VUs against a controlled four-slot Go target.
+**15.1410 ms median p95 at 20 VUs**, across three complete curves, with
+**41,234 requests** and **0% errors**. Exact values:
+`p95_ms_at_max_vus=15.14099235`, `total_requests=41234`.
 
-**Benchmark:** `p95-curve` writes raw V1 evidence plus source-locked V2 publication evidence. Lower p95 is better; any HTTP error or p95 above 100 ms fails the run.
+**Proves:** a reusable Dockerized k6 suite measures HTTP tail latency and
+throughput across 1, 5, 10, and 20 VUs against a controlled four-slot Go
+target. Lower p95 is better; any HTTP error or p95 above 100 ms fails the run.
+
+| VUs | Median p95 | Requests/s | Requests | Error rate |
+|---:|---:|---:|---:|---:|
+| 1 | 3.3461 ms | 293.33 | 2,640 | 0% |
+| 5 | 5.0537 ms | 1,384.00 | 12,456 | 0% |
+| 10 | 8.9508 ms | 1,452.67 | 13,074 | 0% |
+| 20 | **15.1410 ms** | 1,451.56 | 13,064 | 0% |
+
+The three 20-VU p95 samples were `14.9140293`, `15.14099235`, and
+`15.2416762 ms`. Throughput plateaus near 1,453 req/s while tail latency
+keeps rising, exposing the four-slot target's queueing behavior.
+
+- Raw V1: [`benchmarks/results/29-p95-curve-v1.json`](benchmarks/results/29-p95-curve-v1.json)
+- Publication V2: [`benchmarks/publication/29-p95-curve-v2.json`](benchmarks/publication/29-p95-curve-v2.json)
+- Source commit: `3146602070006665950e42aeddc5aca19a8670db`
+- Image: `sha256:64f9c11c4de6a65cde252ccbb959091dd9b55e089e8c2499c070e14912af34f6`
 
 ## Run
 
@@ -49,7 +69,8 @@ than synthetic random delay.
 
 The headline sample for each repetition is p95 at 20 VUs. The published value
 is the median of those three samples; the JSON preserves all 12 curve points
-and request rates.
+and request rates. Compare runs only when their V2 `comparability_key`
+matches; host CPU scheduling still affects local Docker latency.
 
 ## Architecture
 

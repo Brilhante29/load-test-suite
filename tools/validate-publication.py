@@ -5,6 +5,7 @@ import hashlib
 import importlib.util
 import json
 import re
+import statistics
 import subprocess
 from pathlib import Path
 from typing import Any
@@ -55,6 +56,16 @@ def git_has_commit(commit: str) -> bool:
     return completed.returncode == 0
 
 
+def git_is_ancestor(commit: str) -> bool:
+    completed = subprocess.run(
+        ["git", "-c", f"safe.directory={ROOT}", "-C", str(ROOT),
+         "merge-base", "--is-ancestor", commit, "HEAD"],
+        capture_output=True,
+        check=False,
+    )
+    return completed.returncode == 0
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--require-git", action="store_true")
@@ -93,6 +104,7 @@ def main() -> None:
     require(metric["value"] == v1["value"], "V1/V2 value mismatch")
     require(metric["samples"] == samples, "V1/V2 samples mismatch")
     require(metric["failures"] == 0, "V2 contains failures")
+    require(len(samples) == spec["repeat"], "primary samples must match repetitions")
     require(v2["execution"]["repeat"] == spec["repeat"], "execution repeat mismatch")
     workload = v2["workload"]
     require(workload["measured_iterations"] == spec["measured_iterations"], "measured iteration mismatch")
@@ -102,6 +114,38 @@ def main() -> None:
     provenance = v2["provenance"]
     require(provenance["artifact_digest"] == sha256_file(v1_path), "raw artifact digest mismatch")
     require(re.fullmatch(r"sha256:[0-9a-f]{64}", provenance["image_digest"]) is not None, "invalid image digest")
+    require(
+        provenance["image_ref"].endswith(provenance["image_digest"]),
+        "image reference and digest disagree",
+    )
+    require(
+        v1["environment"]["source_commit"] == provenance["source_commit"],
+        "raw result and V2 source commits disagree",
+    )
+    require(v1["environment"]["k6_image"] == "grafana/k6:2.1.0", "unexpected k6 runtime")
+    require(v1["repeat"] == spec["repeat"], "V1 repeat mismatch")
+    require(v1["failures"] == 0, "V1 contains failed requests")
+    require([point["vus"] for point in v1["curve"]] == [1, 5, 10, 20], "unexpected VU curve")
+    require(len(v1["runs"]) == spec["repeat"], "raw curves are missing")
+    max_vus_samples = [
+        next(point["p95_ms"] for point in run["curve"] if point["vus"] == 20)
+        for run in v1["runs"]
+    ]
+    require(samples == max_vus_samples, "headline samples do not match raw 20-VU curves")
+    require(metric["value"] == statistics.median(samples), "headline must be sample median")
+    require(
+        all(point["error_rate"] == 0 for run in v1["runs"] for point in run["curve"]),
+        "raw curve contains HTTP errors",
+    )
+    require(
+        v1["curve"][-1]["p95_ms"] > v1["curve"][0]["p95_ms"],
+        "controlled workload did not expose tail-latency growth",
+    )
+    require(
+        v1["summary"]["total_requests"]
+        == sum(point["requests"] for point in v1["curve"]),
+        "request totals disagree",
+    )
     require(
         f"result_path: {spec['v2_path']}" in manifest,
         "manifest V2 result path mismatch",
@@ -113,6 +157,7 @@ def main() -> None:
     if args.require_git:
         source_commit = provenance["source_commit"]
         require(git_has_commit(source_commit), "source commit unavailable; fetch full history")
+        require(git_is_ancestor(source_commit), "source commit is not an ancestor of HEAD")
         producer = load_producer()
         require(
             workload["fixture_digest"] == producer.digest_committed_path(ROOT, fixture_path, source_commit),

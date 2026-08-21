@@ -7,7 +7,7 @@ program:
     - k6 load profiles
     - benchmark result schema
     - Docker and CI validation
-status: benchmarked
+status: published
 claim: Uma suite Dockerizada mede uma curva p95 reproduzivel de um alvo HTTP local sob 1, 5, 10 e 20 VUs.
 stack: [go, k6, javascript, docker]
 language_profile:
@@ -33,7 +33,7 @@ decision_brain:
   reuse_improvement_loop:
     source: .portfolio/decision-brain/reuse-improvement-loop.yaml
     review_path: sdd/reuse-improvement-review.md
-    current_status: recorded
+    current_status: applied
   principles:
     coupling_rule: O modulo do alvo depende apenas da biblioteca padrao; o cenario e o relatorio nao dependem do alvo por import.
     solid: [srp, ocp, lsp, isp, dip]
@@ -51,7 +51,7 @@ decision_brain:
     real_provider_target: none
     emulated_services: []
     adapter_rule: Nao ha dependencia cloud; um alvo remoto pode ser fornecido por TARGET_URL sem alterar o cenario.
-    config_switch: TARGET_URL=http://127.0.0.1:8080/health
+    config_switch: TARGET_URL=http://127.0.0.1:8080/work
     unsupported_behaviors: []
   database: none
   runtime: Docker image grafana/k6 2.1.0 contendo o binario Go 1.26.6 estatico e o cenario JavaScript.

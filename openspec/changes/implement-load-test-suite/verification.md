@@ -4,30 +4,31 @@
 
 | Command | Result |
 |---|---|
-| `docker run --rm -v ... golang:1.25-alpine go test ./...` | passed: handler tests green |
-| `docker run --rm -v ... golang:1.25-alpine go vet ./...` | passed |
-| `node --check k6/p95-curve.js` and module files | passed |
+| `docker run ... golang:1.26.6-alpine gofmt/go test/go vet` | passed: 4 handler tests |
+| `node --check k6/*.js` | passed |
 | `docker build -t load-test-suite:local .` | passed |
-| `docker run ... load-test-suite:local benchmark` | passed: 0% errors, four VU levels |
-| `powershell -NoProfile -File scripts/benchmark.ps1 -ResultName p95-curve-script.json` | passed |
-| `powershell -NoProfile -File tools/validate-project.ps1 -Strict` | passed |
+| `pwsh -File scripts/publish-benchmark.ps1 -Build` | passed: 3 curves, 12 measured windows |
+| `python tools/validate-publication.py --require-git` | passed |
+| `pwsh -File tools/validate-project.ps1 -SkipDocker -Strict` | passed |
 
 ## Evidence
 
-- Docker: multi-stage image compiled Go and ran k6 0.49.0.
-- Tests: httptest covers health, payload and method rejection.
-- Benchmark: `p95-curve-baseline.json` has p95 `[0.9934, 1.5960, 2.0660, 5.3777] ms` and 0 error rate.
-- README result: table linked to the baseline JSON.
-- References: local kit and k6 attribution documented.
-- Reuse review: patch-now/backlog/reject decisions recorded.
-- Validation: strict script passed file, JSON, Go, JS, Docker and placeholder checks.
+- Source commit: `3146602070006665950e42aeddc5aca19a8670db`.
+- Image: `sha256:64f9c11c4de6a65cde252ccbb959091dd9b55e089e8c2499c070e14912af34f6`.
+- Runtime: Go 1.26.6 and k6 2.1.0.
+- Benchmark: median p95 `15.14099235 ms` at 20 VUs.
+- Samples: `[14.9140293, 15.14099235, 15.2416762]` ms.
+- Workload: 3 repetitions, 4 levels, 3 seconds per level.
+- Volume: 41,234 requests with 0 failures.
+- Evidence: V1 raw result plus benchmark-result-v2 provenance.
 
 ## Publication Decision
 
-- Ready: local implementation is complete and committed; no push was performed.
-- Remaining risk: host-level Docker variance and no cloud topology claim.
+- Ready: implementation, benchmark and local publication gates passed.
+- Remote gate: the exact final GitHub head must pass `.github/workflows/validate.yml`.
+- Remaining risk: host-level Docker variance; no distributed-load or cloud claim.
 
 ## Reuse Follow-up
 
-The only kit-level candidate is a future generic tagged-scenario p95 helper;
-this project keeps its scenario-specific code local.
+Promote only the generic multi-run k6 evidence rules to `portfolio-reuse-kit`.
+The controlled Go target and this scenario topology remain project-specific.

@@ -63,3 +63,5 @@ deploys ou processos externos adicionais.
 - [x] Testes cobrem o contrato HTTP principal.
 - [x] REFERENCES.md explica o reuso.
 - [x] Nenhum segredo ou credencial paga e necessario.
+- [x] V2 liga resultado, commit, imagem, fixture, configuracao e lock.
+- [x] CI smoke usa artefato separado do resultado publicado.

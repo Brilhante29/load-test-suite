@@ -16,16 +16,17 @@ Project: `29 - load-test-suite`
 | Finding | Classification | Kit Area | Action | Status |
 |---|---|---|---|---|
 | O template exige resultado, mas o `.gitignore` de scaffold o ignora por padrao. | patch_now | templates | Manter ignore para execucoes locais e liberar explicitamente o baseline versionado. | recorded |
-| O harness fornece smoke k6, mas nao uma curva por VU com metadados de imagem. | backlog | harness | Considerar um helper generico de curva no kit sem mover o cenario especifico. | recorded |
+| O harness fornecia apenas smoke k6 e nao governava repeticoes, curva ou V2. | patch_now | harness + skills | Promover contrato e skill genericos para curvas k6 multi-run; manter alvo e cenarios concretos locais. | applied |
 | O alvo HTTP e especifico deste benchmark. | reject | harness | Nao promover o fixture para o kit; ele e evidencia do projeto. | recorded |
 
 ## Patch Now Decisions
 
 - A regra de versionamento do baseline foi aplicada apenas neste projeto.
 
-## Backlog Decisions
+## Reusable Patch
 
-- Avaliar um template de resultado p95 por cenarios no harness, com schema backward-compatible.
+- O kit agora governa amostras por repeticao, curva agregada, thresholds
+  fail-closed, smoke isolado da evidencia publicada e proveniencia do commit.
 
 ## Rejected Improvements
 
@@ -35,4 +36,4 @@ Project: `29 - load-test-suite`
 
 - [x] Reusable improvements were patched or recorded.
 - [x] Project-specific implementation was not moved into the kit.
-- [x] Validation reflects the explicit versioned benchmark baseline rule.
+- [x] Validation reflects V1/V2, three repetitions, exact source provenance, and isolated CI smoke.

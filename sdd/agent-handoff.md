@@ -59,6 +59,14 @@ Project: `29 - load-test-suite`
 - Variacao de host Docker pode superar a variacao do alvo; o ambiente e sempre registrado.
 - O perfil nao representa uma topologia multi-container ou cloud.
 
+## Canonical Evidence
+
+- Source SHA: `3146602070006665950e42aeddc5aca19a8670db`.
+- Image SHA: `sha256:64f9c11c4de6a65cde252ccbb959091dd9b55e089e8c2499c070e14912af34f6`.
+- V1: `benchmarks/results/29-p95-curve-v1.json`.
+- V2: `benchmarks/publication/29-p95-curve-v2.json`.
+- Result: `15.14099235 ms` median p95 at 20 VUs, 41,234 requests, 0 errors.
+
 ## Publication Gates
 
 - [x] Docker path works

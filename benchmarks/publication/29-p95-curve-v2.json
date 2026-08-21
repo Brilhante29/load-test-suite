@@ -1,0 +1,60 @@
+{
+  "benchmark_id": "p95-curve",
+  "comparability_key": "p95-curve:2.0.0:vus-1-5-10-20:repeats-3:window-3s:workers-4:service-2ms:k6-2.1.0",
+  "environment": {
+    "architecture": "amd64",
+    "hardware_class": "docker-local",
+    "runtime": "go-1.26.6+k6-2.1.0"
+  },
+  "execution": {
+    "command": "pwsh -NoProfile -File scripts/benchmark.ps1 -ImageTag load-test-suite:local -ResultName 29-p95-curve-v1.json",
+    "duration_seconds": 41.178898,
+    "exit_code": 0,
+    "repeat": 3,
+    "started_at": "2026-08-21T05:30:53.073708Z"
+  },
+  "metrics": [
+    {
+      "direction": "lower_is_better",
+      "failures": 0,
+      "name": "p95_ms_at_max_vus",
+      "samples": [
+        14.9140293,
+        15.14099235,
+        15.241676199999999
+      ],
+      "summary": {
+        "error_rate": 0,
+        "levels": 4,
+        "max_p95_ms_at_max_vus": 15.241676199999999,
+        "max_vus": 20,
+        "median_p95_ms_at_max_vus": 15.14099235,
+        "min_p95_ms_at_max_vus": 14.9140293,
+        "repeats": 3,
+        "total_requests": 41234
+      },
+      "unit": "ms",
+      "value": 15.14099235
+    }
+  ],
+  "project": "load-test-suite",
+  "provenance": {
+    "artifact_digest": "sha256:e591f7269c6e2d62fc63ce9ce532338ab8c1f7ccb436c28b7a94df77e76c7aa4",
+    "clean_tree": true,
+    "dependency_lock_digest": "sha256:61117ba53032e95b729e40a00e4830146c9a75b4e858759f390b342ec3dc8169",
+    "image_digest": "sha256:64f9c11c4de6a65cde252ccbb959091dd9b55e089e8c2499c070e14912af34f6",
+    "image_ref": "load-test-suite:local@sha256:64f9c11c4de6a65cde252ccbb959091dd9b55e089e8c2499c070e14912af34f6",
+    "producer": "local",
+    "source_commit": "3146602070006665950e42aeddc5aca19a8670db"
+  },
+  "run_id": "d98dda62-4f27-40ae-a0b9-42ae4797fe72",
+  "schema_version": 2,
+  "workload": {
+    "concurrency": 20,
+    "config_digest": "sha256:ffea11b3649198a77cf48e470481862b1aae288f02d30982b02f9cbd88d798e5",
+    "fixture_digest": "sha256:8fec6d658ccce6c1fb3a9cd9884e96baf565d27bdba74c417a0017f69295213e",
+    "measured_iterations": 4,
+    "version": "2.0.0",
+    "warmup_iterations": 1
+  }
+}

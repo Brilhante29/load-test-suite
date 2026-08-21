@@ -128,9 +128,14 @@ foreach ($file in @($resultFiles | Where-Object Name -EQ "29-p95-curve-v1.json")
     if ($result.samples.Count -ne 3) { Fail "$($file.Name) must contain one max-VU p95 sample per repetition" }
     if ($result.curve.Count -ne 4) { Fail "$($file.Name) must contain four VU levels" }
     if ($result.runs.Count -ne 3) { Fail "$($file.Name) must preserve all three raw curves" }
+    if ([double]$result.value -ne [double]$result.summary.median_p95_ms_at_max_vus) {
+      Fail "$($file.Name) headline and summary median disagree"
+    }
+    if ([int]$result.failures -ne 0) { Fail "$($file.Name) contains failures" }
     foreach ($point in @($result.curve)) {
       if ([double]$point.requests -le 0) { Fail "$($file.Name) has a VU level with no requests" }
       if ([double]$point.p95_ms -le 0) { Fail "$($file.Name) has a VU level with invalid p95" }
+      if ([double]$point.error_rate -ne 0) { Fail "$($file.Name) has a VU level with HTTP errors" }
     }
     if ([string]::IsNullOrWhiteSpace([string]$result.environment.image_tag)) { Fail "$($file.Name) missing image metadata" }
     if ([string]::IsNullOrWhiteSpace([string]$result.environment.runtime)) { Fail "$($file.Name) missing runtime metadata" }
