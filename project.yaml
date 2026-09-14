@@ -54,7 +54,7 @@ decision_brain:
     config_switch: TARGET_URL=http://127.0.0.1:8080/work
     unsupported_behaviors: []
   database: none
-  runtime: Docker image grafana/k6 2.1.0 contendo o binario Go 1.26.6 estatico e o cenario JavaScript.
+  runtime: Go 1.26.8 target and k6 2.2.0 security rebuild; historical benchmark evidence predates this runtime.
   library_policy: Usar apenas net/http no alvo e as APIs nativas de k6; nenhuma dependencia de aplicacao e necessaria.
   record_path: sdd/technical-decision.md
   rejected_options:

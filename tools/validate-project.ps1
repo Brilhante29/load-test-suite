@@ -156,7 +156,7 @@ try {
     Run-Checked "go vet" { go vet ./... }
   } elseif (Get-Command docker -ErrorAction SilentlyContinue) {
 $volume = "${root}:/src"
-    Run-Checked "container go test" { docker run --rm -v load-test-suite-go-build-cache:/root/.cache/go-build -v $volume -w /src golang:1.26.6-alpine go test -vet=off ./... }
+    Run-Checked "container go test" { docker run --rm -v load-test-suite-go-build-cache:/root/.cache/go-build -v $volume -w /src golang:1.26.8-alpine3.24 go test -vet=off ./... }
   } else {
     Fail "Neither Go nor Docker is available for Go validation"
   }

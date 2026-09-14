@@ -22,8 +22,10 @@ Benchmark: `p95_ms_at_max_vus`, preservando a curva completa.
 
 ## Selected Option
 
-Selected: Go standard library como alvo controlado e grafana/k6 2.1.0 como
+Selected: Go standard library como alvo controlado e k6 2.2.0 security rebuild como
 executor.
+
+Security refresh and historical benchmark scope: [2026-09-14 decision](security-refresh-2026-09-14.md).
 
 Reason:
 
