@@ -1,0 +1,18 @@
+{
+  "disposition": "documented",
+  "fixable": 13,
+  "fixable_packages": {
+    "golang.org/x/text": 1,
+    "google.golang.org/grpc": 1,
+    "libcrypto3": 1,
+    "libssl3": 1,
+    "stdlib": 9
+  },
+  "generated_at": "2026-08-21T14:29:50.160090Z",
+  "high_critical_total": 13,
+  "image": "load-test-suite:sec",
+  "no_upstream_fix": 0,
+  "rationale": "Base images are pinned by digest so benchmark provenance stays comparable. Rebuilding does not clear these advisories: the current upstream digest carries the same set. Applying apt-get upgrade would make the image non-deterministic and change image_digest between builds of the same commit, breaking the V2 comparability contract.",
+  "repository": "load-test-suite",
+  "sbom_packages": 108
+}
