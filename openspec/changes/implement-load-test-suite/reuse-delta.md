@@ -4,25 +4,25 @@
 
 | Candidate | Decision | Reason | Follow-up |
 |---|---|---|---|
-| Baseline JSON explicitamente versionado | patch-now | O contrato do kit e benchmark-driven, mas o scaffold ignora todos os JSON. | Regra local no `.gitignore`. |
-| Helper generico de p95 por VU | backlog | Pode beneficiar outros repos, mas precisa de schema e compatibilidade. | Avaliar no harness do kit. |
-| Fixture Go local | reject | E especifico do claim #29, nao uma abstracao do kit. | Manter no projeto. |
+| Explicitly versioned baseline JSON | patch-now | The kit contract is benchmark-driven, but the scaffold ignores all JSON. | Local rule in `.gitignore`. |
+| Generic p95-per-VU helper | backlog | It may benefit other repositories, but it needs a schema and compatibility. | Evaluate in the kit harness. |
+| Local Go fixture | reject | It is specific to the #29 claim, not a kit abstraction. | Keep it in the project. |
 
 ## Kit Patch
 
-Nenhum arquivo do `portfolio-reuse-kit` foi alterado nesta tarefa. A melhoria
-de versionamento foi aplicada apenas no projeto e documentada acima.
+No `portfolio-reuse-kit` file was changed in this task. The versioning
+improvement was applied only in the project and is documented above.
 
 ## Backlog
 
-Propor um template opcional no harness para curvas de metricas tagged por
-cenario, com metadados de imagem.
+Propose an optional harness template for metric curves tagged by scenario,
+with image metadata.
 
 ## Rejected
 
-Nao transformar o alvo HTTP estavel em componente global.
+Do not turn the stable HTTP target into a global component.
 
 ## Final Gate
 
-- [x] Cada descoberta foi patch-now, backlog ou reject.
-- [x] Nenhuma implementacao especifica foi movida para o kit.
+- [x] Every discovery was patch-now, backlog, or reject.
+- [x] No project-specific implementation was moved into the kit.

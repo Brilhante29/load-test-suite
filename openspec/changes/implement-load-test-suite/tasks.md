@@ -20,7 +20,7 @@
 
 ## Documentation
 
-- [x] README opens with number, claim, and benchmark result.
+- [x] README opens with a descriptive title, claim, and benchmark result.
 - [x] REFERENCES documents reuse.
 - [x] Reuse review is complete.
 - [x] Validation passes.

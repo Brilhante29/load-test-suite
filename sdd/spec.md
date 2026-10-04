@@ -6,12 +6,12 @@
 
 ## Claim
 
-Uma suite Dockerizada mede uma curva p95 reproduzivel de um alvo HTTP local
-sob 1, 5, 10 e 20 VUs.
+A Dockerized suite measures a reproducible p95 curve of a local HTTP target
+under 1, 5, 10, and 20 VUs.
 
 ## Stack
 
-Go 1.26.6 standard library, k6 2.1.0, JavaScript, Docker e GitHub Actions.
+Go 1.26.6 standard library, k6 2.1.0, JavaScript, Docker, and GitHub Actions.
 
 ## User-visible output
 
@@ -19,49 +19,48 @@ Go 1.26.6 standard library, k6 2.1.0, JavaScript, Docker e GitHub Actions.
 - `docker run --rm -v ...:/results load-test-suite:local benchmark`
 - `benchmarks/results/29-p95-curve-v1.json`
 - `benchmarks/publication/29-p95-curve-v2.json`
-- README com uma linha para cada nivel de VUs.
+- README with one row per VU level.
 
 ## Scope
 
 In:
 
-- Alvo HTTP local minimo e estavel.
-- Cenario k6 reutilizavel com niveis configuraveis no perfil.
-- Relatorio JSON com p95, requests, erros, imagem e ambiente.
-- Docker, CI, testes e validacao estrita.
+- A minimal, stable local HTTP target.
+- A reusable k6 scenario with levels configured in the profile.
+- A JSON report with p95, requests, errors, image, and environment.
+- Docker, CI, tests, and strict validation.
 
 Out:
 
-- Integracao com cloud, banco, broker ou segredo pago.
-- Dashboard persistente ou comparacao estatistica entre maquinas.
-- Dashboard persistente ou execucao de carga distribuida.
+- Cloud, database, broker, or paid-secret integration.
+- A persistent dashboard, statistical comparison across machines, or distributed load execution.
 
 ## Architecture
 
 `Docker entrypoint -> target module + k6 scenario -> report module -> JSON`
 
-O modular monolith separa os modulos por responsabilidade sem introduzir
-deploys ou processos externos adicionais.
+The modular monolith separates modules by responsibility without introducing
+additional deployments or external processes.
 
 ## Benchmark
 
 - name: `p95_ms_at_max_vus`
 - unit: `ms`
 - levels: 1, 5, 10, 20 VUs
-- fixture: `GET /work`, quatro slots e 2 ms de servico
+- fixture: `GET /work`, four slots and 2 ms of service time
 - warmup: 1s
-- sample window: 3s por nivel
+- sample window: 3s per level
 - repetitions: 3
 - result: `benchmarks/results/29-p95-curve-v1.json`
 - publication: `benchmarks/publication/29-p95-curve-v2.json`
 
 ## Definition of done
 
-- [x] Docker build e Docker run funcionam a partir do checkout.
-- [x] README inicia com numero, claim e resultado versionado.
-- [x] Benchmark escreve JSON compativel com o contrato.
-- [x] Testes cobrem o contrato HTTP principal.
-- [x] REFERENCES.md explica o reuso.
-- [x] Nenhum segredo ou credencial paga e necessario.
-- [x] V2 liga resultado, commit, imagem, fixture, configuracao e lock.
-- [x] CI smoke usa artefato separado do resultado publicado.
+- [x] Docker build and Docker run work from the checkout.
+- [x] README opens with a descriptive title, the claim, and the versioned result.
+- [x] Benchmark writes JSON compatible with the contract.
+- [x] Tests cover the main HTTP contract.
+- [x] REFERENCES.md explains the reuse.
+- [x] No secret or paid credential is required.
+- [x] V2 binds the result, commit, image, fixture, configuration, and lock.
+- [x] CI smoke uses an artifact separate from the published result.

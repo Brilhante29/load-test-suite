@@ -69,7 +69,7 @@ if (Test-Path -LiteralPath (Join-Path $root ".git") -PathType Container) {
 $readmePath = Join-Path $root "README.md"
 if (Test-Path -LiteralPath $readmePath) {
   $readme = Get-Content -Raw -LiteralPath $readmePath
-  if ($readme -notmatch "(?m)^# #29 load-test-suite") { Fail "README must start with project #29" }
+  if ($readme -notmatch "(?m)^# Load Test Suite") { Fail "README must start with the project title" }
   if ($readme -match "pending") { Fail "README still contains pending benchmark values" }
 }
 

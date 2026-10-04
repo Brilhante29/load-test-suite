@@ -15,22 +15,22 @@ Project: `29 - load-test-suite`
 
 | Finding | Classification | Kit Area | Action | Status |
 |---|---|---|---|---|
-| O template exige resultado, mas o `.gitignore` de scaffold o ignora por padrao. | patch_now | templates | Manter ignore para execucoes locais e liberar explicitamente o baseline versionado. | recorded |
-| O harness fornecia apenas smoke k6 e nao governava repeticoes, curva ou V2. | patch_now | harness + skills | Promover contrato e skill genericos para curvas k6 multi-run; manter alvo e cenarios concretos locais. | applied |
-| O alvo HTTP e especifico deste benchmark. | reject | harness | Nao promover o fixture para o kit; ele e evidencia do projeto. | recorded |
+| The template requires a committed result, but the scaffold `.gitignore` ignores it by default. | patch_now | templates | Keep the ignore rule for local runs and explicitly allow the versioned baseline. | recorded |
+| The harness offered only a k6 smoke run and did not govern repetitions, curves, or V2. | patch_now | harness + skills | Promote a generic contract and skill for multi-run k6 curves; keep the concrete target and scenarios local. | applied |
+| The HTTP target is specific to this benchmark. | reject | harness | Do not promote the fixture to the kit; it is project evidence. | recorded |
 
 ## Patch Now Decisions
 
-- A regra de versionamento do baseline foi aplicada apenas neste projeto.
+- The baseline versioning rule was applied only in this project.
 
 ## Reusable Patch
 
-- O kit agora governa amostras por repeticao, curva agregada, thresholds
-  fail-closed, smoke isolado da evidencia publicada e proveniencia do commit.
+- The kit now governs per-repetition samples, the aggregated curve, fail-closed
+  thresholds, smoke runs isolated from published evidence, and commit provenance.
 
 ## Rejected Improvements
 
-- Nao adicionar um servidor HTTP generico ao `portfolio-reuse-kit`; o alvo Go e parte do claim #29.
+- Do not add a generic HTTP server to `portfolio-reuse-kit`; the Go target is part of the #29 claim.
 
 ## Final Gate
 

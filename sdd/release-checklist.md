@@ -7,7 +7,7 @@
 - [x] V2 publication evidence is source-locked under `benchmarks/publication/`.
 - [x] Three independent curves are preserved.
 - [x] CI smoke cannot overwrite canonical evidence.
-- [x] README opens with number and benchmark result.
+- [x] README opens with a descriptive title and the benchmark result.
 - [x] `REFERENCES.md` exists.
 - [x] License exists.
 - [x] No empty directories used as proof.

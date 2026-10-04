@@ -4,10 +4,10 @@ Project: `29 - load-test-suite`
 
 ## Principal Agent Summary
 
-- Objective: medir uma curva p95 local sob quatro niveis de VUs.
+- Objective: measure a local p95 curve under four VU levels.
 - Portfolio program: `delivery-observability-infra`.
-- Public proof claim: benchmark Dockerizado com resultado JSON versionado.
-- Primary benchmark: `p95_ms_at_max_vus` em ms, com curva por VU.
+- Public proof claim: a Dockerized benchmark with a versioned JSON result.
+- Primary benchmark: `p95_ms_at_max_vus` in ms, with a curve per VU level.
 - Default publication path: `scripts/publish-benchmark.ps1 -Build`.
 
 ## Subagent Decisions
@@ -15,34 +15,34 @@ Project: `29 - load-test-suite`
 | Role | Decision | Evidence Path | Status |
 |---|---|---|---|
 | `program-planner` | delivery-observability-infra | `project.yaml`, `openspec/changes/implement-load-test-suite/portfolio-impact.md` | accepted |
-| `architecture-selector` | modular-monolith com seams hexagonais simples | `sdd/architecture-decision.md` | accepted |
-| `engineering-principles-reviewer` | stdlib Go, dependencias inward | `sdd/technical-decision.md` | accepted |
+| `architecture-selector` | modular-monolith with simple hexagonal seams | `sdd/architecture-decision.md` | accepted |
+| `engineering-principles-reviewer` | Go stdlib, inward dependencies | `sdd/technical-decision.md` | accepted |
 | `stack-decision-agent` | Go + k6 + Docker | `project.yaml`, `sdd/technical-decision.md` | accepted |
-| `api-style-agent` | HTTP REST minimo | `sdd/technical-decision.md` | accepted |
-| `cloud-local-first-agent` | sem cloud; alvo local configuravel | `sdd/technical-decision.md` | accepted |
-| `messaging-agent` | nenhum broker | `sdd/technical-decision.md` | accepted |
-| `language-profile-agent` | go-backend + JavaScript k6 | `go.mod`, `k6/` | accepted |
-| `benchmark-harness-agent` | curva p95 customizada por VU | `sdd/benchmark-plan.md`, `benchmarks/results/` | accepted |
-| `design-system-agent` | README numerado e diagrama de fluxo | `README.md` | accepted |
-| `security-reuse-reviewer` | sem segredo e com atribuicao local | `REFERENCES.md` | accepted |
-| `release-ci-publisher` | CI testa, constroi, mede e valida | `.github/workflows/validate.yml` | accepted |
+| `api-style-agent` | minimal HTTP REST | `sdd/technical-decision.md` | accepted |
+| `cloud-local-first-agent` | no cloud; configurable local target | `sdd/technical-decision.md` | accepted |
+| `messaging-agent` | no broker | `sdd/technical-decision.md` | accepted |
+| `language-profile-agent` | go-backend + JavaScript for k6 | `go.mod`, `k6/` | accepted |
+| `benchmark-harness-agent` | custom p95 curve per VU level | `sdd/benchmark-plan.md`, `benchmarks/results/` | accepted |
+| `design-system-agent` | README with descriptive title and flow diagram | `README.md` | accepted |
+| `security-reuse-reviewer` | no secret, local attribution | `REFERENCES.md` | accepted |
+| `release-ci-publisher` | CI tests, builds, measures, and validates | `.github/workflows/validate.yml` | accepted |
 
 ## Local-First Runtime
 
 - Docker command: `docker run --rm ... load-test-suite:local benchmark`.
-- Local services: alvo Go no mesmo container.
-- Kumo services: nenhum.
-- Real cloud adapter target: nenhum.
+- Local services: the Go target in the same container.
+- Kumo services: none.
+- Real cloud adapter target: none.
 - Config switch: `TARGET_URL`.
 - Default path requires paid secret: no.
 
 ## Architecture Boundaries
 
-- Domain boundaries: `internal/target` e contrato HTTP estavel.
-- Use-case boundaries: scenario k6 e report k6.
-- Ports: contrato HTTP e formato de summary.
-- Adapters: entrypoint Docker e scripts de host.
-- Dependency direction rule: alvo nao conhece benchmark; report nao conhece Go.
+- Domain boundaries: `internal/target` and the stable HTTP contract.
+- Use-case boundaries: the k6 scenario and the k6 report.
+- Ports: the HTTP contract and the summary format.
+- Adapters: the Docker entrypoint and host scripts.
+- Dependency direction rule: the target does not know the benchmark; the report does not know Go.
 
 ## Benchmark Handoff
 
@@ -52,12 +52,12 @@ Project: `29 - load-test-suite`
 - Command: `pwsh -NoProfile -File scripts/publish-benchmark.ps1 -Build`.
 - Result path: `benchmarks/results/29-p95-curve-v1.json`.
 - Publication path: `benchmarks/publication/29-p95-curve-v2.json`.
-- Dataset or fixture: `GET /work`, quatro slots e 2 ms, sem dados externos.
+- Dataset or fixture: `GET /work`, four slots and 2 ms, no external data.
 
 ## Open Risks
 
-- Variacao de host Docker pode superar a variacao do alvo; o ambiente e sempre registrado.
-- O perfil nao representa uma topologia multi-container ou cloud.
+- Docker host variance can exceed target variance; the environment is always recorded.
+- The profile does not represent a multi-container or cloud topology.
 
 ## Canonical Evidence
 
@@ -71,7 +71,7 @@ Project: `29 - load-test-suite`
 
 - [x] Docker path works
 - [x] benchmark result exists
-- [x] README starts with number, claim, and benchmark
+- [x] README starts with a descriptive title, claim, and benchmark
 - [x] references are documented
 - [x] no secret in files or git remote
 - [x] validation passes

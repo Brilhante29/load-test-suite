@@ -4,7 +4,7 @@
 
 - Pack: `delivery-observability-infra`.
 - Program: `delivery-observability-infra`.
-- Reason: o pack pede CI, k6 profile, resultado de benchmark e release gates para evidencia de carga.
+- Reason: the pack calls for CI, a k6 profile, a benchmark result, and release gates for load evidence.
 
 ## Skills
 
@@ -39,17 +39,17 @@
 
 ## External Component Recommendations
 
-Nenhuma instalacao externa e necessaria; Docker fornece o runtime do k6.
+No external installation is needed; Docker provides the k6 runtime.
 
 ## Publication Gates
 
-- project.yaml completo
-- OpenSpec e SDD completos
+- complete project.yaml
+- complete OpenSpec and SDD
 - Docker build/run
-- benchmark JSON versionado
-- README numerado
-- validacao estrita
+- versioned benchmark JSON
+- README with a descriptive title and the benchmark result
+- strict validation
 
 ## Rejected Packs
 
-- `backend-reliability-platform`: o foco aqui e a ferramenta de carga e CI, nao um backend de dominio.
+- `backend-reliability-platform`: the focus here is the load tool and CI, not a domain backend.

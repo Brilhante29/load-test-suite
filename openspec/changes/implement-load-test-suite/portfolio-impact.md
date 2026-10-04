@@ -4,21 +4,22 @@
 
 - Program: `delivery-observability-infra`.
 - Related repositories: `ci-cd-templates`, `observability-stack`, `terraform-aws-baseline`.
-- Shared assets: GitHub Actions, k6 load profiles, benchmark JSON e release gates.
+- Shared assets: GitHub Actions, k6 load profiles, benchmark JSON, and release gates.
 
 ## System Story
 
-Este repositorio fornece a evidencia de carga que faltaria entre templates de
-entrega e observabilidade. Ele cria um caminho comum para medir cauda de
-latencia, guardar o ambiente e comparar mudancas sem depender de cloud.
+This repository provides the load evidence that would otherwise be missing
+between delivery templates and observability. It creates a common path to
+measure tail latency, record the environment, and compare changes without
+depending on the cloud.
 
 ## Proficiency Signal
 
-- Primary skill: Go HTTP e k6.
-- Secondary skills: Docker, CI e validacao de contratos.
-- Recruiter-facing proof: um benchmark de p95 com curva por VU, imagem pinada e resultado versionado.
+- Primary skill: Go HTTP and k6.
+- Secondary skills: Docker, CI, and contract validation.
+- Recruiter-facing proof: a p95 benchmark with a curve per VU level, a pinned image, and a versioned result.
 
 ## Post Angle
 
-Como transformar um alvo HTTP pequeno em evidencia operacional reproduzivel
-com k6, Docker e CI.
+How to turn a small HTTP target into reproducible operational evidence with
+k6, Docker, and CI.
