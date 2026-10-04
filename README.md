@@ -1,11 +1,10 @@
 # Load Test Suite: Reusable k6 Latency Curves with Fail-Closed Gates
 
-[![validate](https://github.com/Brilhante29/load-test-suite/actions/workflows/validate.yml/badge.svg)](https://github.com/Brilhante29/load-test-suite/actions/workflows/validate.yml)
-
 **15.1410 ms median p95 at 20 VUs**, across three complete curves, with
 **41,234 requests** and **0% errors**. Exact values:
 `p95_ms_at_max_vus=15.14099235`, `total_requests=41234`.
 
+[![validate](https://github.com/Brilhante29/load-test-suite/actions/workflows/validate.yml/badge.svg)](https://github.com/Brilhante29/load-test-suite/actions/workflows/validate.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 ![k6](https://img.shields.io/badge/k6-7D64FF?logo=k6&logoColor=white) ![Go](https://img.shields.io/badge/Go-00ADD8?logo=go&logoColor=white)
 
@@ -27,9 +26,7 @@ A single load test number ("1,400 req/s!") hides the shape that matters: where l
 | 10 | 8.9508 ms | 1,452.67 | 13,074 | 0% |
 | 20 | **15.1410 ms** | 1,451.56 | 13,064 | 0% |
 
-The three 20-VU p95 samples were `14.9140293`, `15.14099235`, and
-`15.2416762 ms`. Throughput plateaus near 1,453 req/s while tail latency
-keeps rising, exposing the four-slot target's queueing behavior.
+**How to read it:** the three 20-VU p95 samples were `14.9140293`, `15.14099235`, and `15.2416762 ms`. Throughput plateaus near 1,453 req/s while tail latency keeps rising, exposing the four-slot target's queueing behavior. That knee, not the peak throughput, is what the curve is for.
 
 - Raw V1: [`benchmarks/results/29-p95-curve-v1.json`](benchmarks/results/29-p95-curve-v1.json)
 - Publication V2: [`benchmarks/publication/29-p95-curve-v2.json`](benchmarks/publication/29-p95-curve-v2.json)
@@ -37,9 +34,6 @@ keeps rising, exposing the four-slot target's queueing behavior.
 - Image: `sha256:64f9c11c4de6a65cde252ccbb959091dd9b55e089e8c2499c070e14912af34f6`
 
 ## Quickstart
-
-Requirements: Docker. Python 3.12 with `requirements-validation.txt` is needed
-only to generate publication evidence.
 
 ```bash
 docker build -t load-test-suite:local .
@@ -49,39 +43,9 @@ docker run --rm \
   load-test-suite:local benchmark
 ```
 
-PowerShell produces the same result without installing k6 or Go:
+Docker is the only requirement. PowerShell produces the same result without installing k6 or Go: `pwsh -NoProfile -File scripts/benchmark.ps1 -ImageTag load-test-suite:local`.
 
-```powershell
-pwsh -NoProfile -File scripts/benchmark.ps1 -ImageTag load-test-suite:local
-```
-
-Generate canonical V1 and V2 evidence from a clean commit:
-
-```powershell
-python -m pip install -r requirements-validation.txt
-pwsh -NoProfile -File scripts/publish-benchmark.ps1 -Build
-```
-
-## Workload
-
-Each repetition runs one warm-up window and four sequential three-second
-measurement windows. The target exposes four worker slots with 2 ms of service
-time per request, so concurrency above four creates observable queueing rather
-than synthetic random delay.
-
-| Level | VUs | Window | Failure gate |
-|---:|---:|---:|---:|
-| 1 | 1 | 3 s | error rate = 0, p95 < 100 ms |
-| 2 | 5 | 3 s | error rate = 0, p95 < 100 ms |
-| 3 | 10 | 3 s | error rate = 0, p95 < 100 ms |
-| 4 | 20 | 3 s | error rate = 0, p95 < 100 ms |
-
-The headline sample for each repetition is p95 at 20 VUs. The published value
-is the median of those three samples; the JSON preserves all 12 curve points
-and request rates. Compare runs only when their V2 `comparability_key`
-matches; host CPU scheduling still affects local Docker latency.
-
-## Architecture
+## How it works
 
 ```mermaid
 flowchart LR
@@ -92,26 +56,69 @@ flowchart LR
   D --> E["V2 provenance envelope"]
 ```
 
-The repository is a small modular monolith. `internal/target` owns the HTTP
-fixture, `k6/scenarios` owns load generation, and `k6/report` owns evidence
-aggregation. The modules depend on HTTP and the k6 summary contract, not on
-each other's implementation.
+The repository is a small modular monolith. `internal/target` owns the HTTP fixture, `k6/scenarios` owns load generation, and `k6/report` owns evidence aggregation. The modules depend on HTTP and the k6 summary contract, not on each other's implementation.
 
-## Validate
+### Workload
 
-```powershell
+Each repetition runs one warm-up window and four sequential three-second measurement windows. The target exposes four worker slots with 2 ms of service time per request, so concurrency above four creates observable queueing rather than synthetic random delay.
+
+| Level | VUs | Window | Failure gate |
+|---:|---:|---:|---:|
+| 1 | 1 | 3 s | error rate = 0, p95 < 100 ms |
+| 2 | 5 | 3 s | error rate = 0, p95 < 100 ms |
+| 3 | 10 | 3 s | error rate = 0, p95 < 100 ms |
+| 4 | 20 | 3 s | error rate = 0, p95 < 100 ms |
+
+The headline sample for each repetition is p95 at 20 VUs. The published value is the median of those three samples; the JSON preserves all 12 curve points and request rates.
+
+## Design decisions
+
+| Decision | Why | Rejected |
+|---|---|---|
+| Modular monolith with three modules | Target, scenarios, and report are cohesive, with one Docker path and no artificial distributed cost | Hexagonal (extra ports with no real integrations to swap); microservices (a second application process adds variance and complexity) |
+| A Go target | A static, low-overhead HTTP target; JavaScript stays where k6 needs it | A Python or Node.js HTTP server: an extra runtime in the target without more signal |
+| Four worker slots with fixed service time | Concurrency above four produces observable, explainable queueing | Synthetic random delay |
+| Fail-closed gates at every level | A regression fails the run instead of passing silently | Report-only load tests |
+
+## Testing
+
+```bash
 pwsh -NoProfile -File tools/validate-project.ps1 -Strict
 ```
 
-CI runs Go tests and vet, formatting and JavaScript checks, V2 provenance
-validation, a Docker build, and an isolated smoke benchmark. The smoke result
-is written outside the checkout and never overwrites committed evidence.
+CI runs Go tests and vet, formatting and JavaScript checks, V2 provenance validation, a Docker build, and an isolated smoke benchmark. The smoke result is written outside the checkout and never overwrites committed evidence.
 
 ## Limitations
 
 - The target is a deliberate four-slot fixture, so the curve characterizes the harness and queueing, not a real service.
 - Local Docker latency depends on host CPU scheduling; compare only runs with matching `comparability_key`.
 - Closed-model VUs only; open-model arrival rates and soak tests are out of scope.
+
+## Reproducibility
+
+1. Run the Quickstart benchmark; the result lands in `benchmarks/results/`.
+2. Generate canonical V1 and V2 evidence from a clean commit (needs Python 3.12):
+
+   ```bash
+   python -m pip install -r requirements-validation.txt
+   pwsh -NoProfile -File scripts/publish-benchmark.ps1 -Build
+   ```
+
+3. Compare runs only when their V2 `comparability_key` matches.
+
+## Project structure
+
+```text
+cmd/load-target/      Go entrypoint for the controlled HTTP target
+internal/target/      four-slot target with fixed service time
+k6/                   p95 curve entrypoint and target readiness check
+k6/scenarios/         sequential VU windows
+k6/report/            curve aggregation into V1 evidence
+benchmarks/           V1 results, V2 publication record, publication spec
+scripts/              Docker entrypoint and benchmark and publication scripts
+tools/                validator and V2 producer
+sdd/                  specification, decisions, benchmark plan, security refresh
+```
 
 ## How this repository is built
 
