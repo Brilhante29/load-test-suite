@@ -1,4 +1,4 @@
-# #29 load-test-suite
+# Load Test Suite: Reusable k6 Latency Curves with Fail-Closed Gates
 
 [![validate](https://github.com/Brilhante29/load-test-suite/actions/workflows/validate.yml/badge.svg)](https://github.com/Brilhante29/load-test-suite/actions/workflows/validate.yml)
 
@@ -6,9 +6,19 @@
 **41,234 requests** and **0% errors**. Exact values:
 `p95_ms_at_max_vus=15.14099235`, `total_requests=41234`.
 
-**Proves:** a reusable Dockerized k6 suite measures HTTP tail latency and
-throughput across 1, 5, 10, and 20 VUs against a controlled four-slot Go
-target. Lower p95 is better; any HTTP error or p95 above 100 ms fails the run.
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+![k6](https://img.shields.io/badge/k6-7D64FF?logo=k6&logoColor=white) ![Go](https://img.shields.io/badge/Go-00ADD8?logo=go&logoColor=white)
+
+## Why this exists
+
+A single load test number ("1,400 req/s!") hides the shape that matters: where latency starts to climb, and whether throughput stops growing while queues fill up. Load tests are also often run once, on a noisy laptop, with no failure criteria, so a regression passes silently. This suite turns load testing into a repeatable, gated measurement:
+
+- k6 runs sequential windows at 1, 5, 10, and 20 virtual users against a controlled Go target;
+- every level must have zero HTTP errors and p95 under 100 ms, or the run fails;
+- three complete curves are recorded, and the published value is the median of the three 20-VU p95 samples;
+- everything runs in Docker, so no local k6 or Go installation is needed.
+
+## Results
 
 | VUs | Median p95 | Requests/s | Requests | Error rate |
 |---:|---:|---:|---:|---:|
@@ -26,11 +36,10 @@ keeps rising, exposing the four-slot target's queueing behavior.
 - Source commit: `3146602070006665950e42aeddc5aca19a8670db`
 - Image: `sha256:64f9c11c4de6a65cde252ccbb959091dd9b55e089e8c2499c070e14912af34f6`
 
-## Run
+## Quickstart
 
-Requirements: Docker Engine or Docker Desktop. Python 3.12 with
-`requirements-validation.txt` is required only to generate publication
-evidence.
+Requirements: Docker. Python 3.12 with `requirements-validation.txt` is needed
+only to generate publication evidence.
 
 ```bash
 docker build -t load-test-suite:local .
@@ -98,6 +107,28 @@ CI runs Go tests and vet, formatting and JavaScript checks, V2 provenance
 validation, a Docker build, and an isolated smoke benchmark. The smoke result
 is written outside the checkout and never overwrites committed evidence.
 
-- Decisions: [`sdd/`](sdd/spec.md)
-- OpenSpec artifacts: [`openspec/changes/implement-load-test-suite/`](openspec/changes/implement-load-test-suite/)
-- Reuse attribution: [`REFERENCES.md`](REFERENCES.md)
+## Limitations
+
+- The target is a deliberate four-slot fixture, so the curve characterizes the harness and queueing, not a real service.
+- Local Docker latency depends on host CPU scheduling; compare only runs with matching `comparability_key`.
+- Closed-model VUs only; open-model arrival rates and soak tests are out of scope.
+
+## How this repository is built
+
+The project follows the spec-driven workflow of [portfolio-reuse-kit](https://github.com/Brilhante29/portfolio-reuse-kit). Decisions live in [`sdd/`](sdd/spec.md) and [`openspec/changes/implement-load-test-suite/`](openspec/changes/implement-load-test-suite/), and [`project.yaml`](project.yaml) records the architecture, stack, and rejected alternatives. Development is AI-assisted and human-governed: [`AGENTS.md`](AGENTS.md) and [`CLAUDE.md`](CLAUDE.md) hold the coding-agent instructions, while tests, validators, and CI decide what gets published.
+
+## Related work
+
+- [go-rate-limiter](https://github.com/Brilhante29/go-rate-limiter) and [api-gateway-lite](https://github.com/Brilhante29/api-gateway-lite): services measured with k6 under contention.
+- [ci-cd-templates](https://github.com/Brilhante29/ci-cd-templates): reusable, security-gated CI workflows.
+
+See [`REFERENCES.md`](REFERENCES.md) for reuse attribution.
+
+## Author
+
+**Guilherme Brilhante**, software engineer working on scalable backends and production AI.
+[LinkedIn](https://www.linkedin.com/in/guilhermefreirebrilhanteseveriano/) · [GitHub](https://github.com/Brilhante29) · [Publications](https://dblp.org/pid/353/6812.html)
+
+## License
+
+[MIT](LICENSE).
