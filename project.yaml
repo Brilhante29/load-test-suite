@@ -2,18 +2,18 @@ id: 29
 name: load-test-suite
 program:
   id: delivery-observability-infra
-  narrative_fit: Prova uma camada reutilizavel de carga para comparar o p95 de um alvo HTTP sob niveis controlados de VUs.
+  narrative_fit: Proves a reusable load layer that compares the p95 of an HTTP target under controlled VU levels.
   shared_assets:
     - k6 load profiles
     - benchmark result schema
     - Docker and CI validation
 status: published
-claim: Uma suite Dockerizada mede uma curva p95 reproduzivel de um alvo HTTP local sob 1, 5, 10 e 20 VUs.
+claim: A Dockerized suite measures a reproducible p95 curve of a local HTTP target under 1, 5, 10, and 20 VUs.
 stack: [go, k6, javascript, docker]
 language_profile:
   primary: go-backend
   secondary: [javascript]
-  reason: Go fornece um alvo HTTP estatico e de baixo overhead; JavaScript e a linguagem nativa dos cenarios k6.
+  reason: Go provides a static, low-overhead HTTP target; JavaScript is the native language of k6 scenarios.
 decision_brain:
   agentic_spec:
     source: .portfolio/decision-brain/agentic-spec-governance.yaml
@@ -35,13 +35,13 @@ decision_brain:
     review_path: sdd/reuse-improvement-review.md
     current_status: applied
   principles:
-    coupling_rule: O modulo do alvo depende apenas da biblioteca padrao; o cenario e o relatorio nao dependem do alvo por import.
+    coupling_rule: The target module depends only on the standard library; the scenario and the report do not import the target.
     solid: [srp, ocp, lsp, isp, dip]
-    simplicity_rule: Um binario HTTP, um perfil k6 e um relatorio JSON bastam para provar o claim.
-    testability_rule: O handler Go e testado com httptest sem Docker; o contrato do cenario e validado no build e no k6.
+    simplicity_rule: One HTTP binary, one k6 profile, and one JSON report are enough to prove the claim.
+    testability_rule: The Go handler is tested with httptest without Docker; the scenario contract is validated in the build and by k6.
     rejected_overengineering:
-      - Microservicos e broker, porque o benchmark mede HTTP sincrono local.
-      - Framework HTTP Go, porque net/http cobre o alvo sem custo de dependencia.
+      - Microservices and a broker, because the benchmark measures local synchronous HTTP.
+      - A Go HTTP framework, because net/http covers the target without a dependency cost.
   stack_profile: go-backend
   api_style: rest-http
   messaging: none
@@ -50,21 +50,21 @@ decision_brain:
     local_provider: none
     real_provider_target: none
     emulated_services: []
-    adapter_rule: Nao ha dependencia cloud; um alvo remoto pode ser fornecido por TARGET_URL sem alterar o cenario.
+    adapter_rule: There is no cloud dependency; a remote target can be supplied through TARGET_URL without changing the scenario.
     config_switch: TARGET_URL=http://127.0.0.1:8080/work
     unsupported_behaviors: []
   database: none
   runtime: Go 1.26.8 target and k6 2.2.0 security rebuild; historical benchmark evidence predates this runtime.
-  library_policy: Usar apenas net/http no alvo e as APIs nativas de k6; nenhuma dependencia de aplicacao e necessaria.
+  library_policy: Use only net/http in the target and the native k6 APIs; no application dependency is needed.
   record_path: sdd/technical-decision.md
   rejected_options:
     - option: Python HTTP server
-      reason: Adicionaria runtime e dependencia de interpretador ao alvo sem aumentar o sinal.
+      reason: It would add a runtime and an interpreter dependency to the target without increasing the signal.
     - option: Node.js HTTP server
-      reason: O alvo deve permanecer minimo e o k6 ja cobre a parte JavaScript da ferramenta.
+      reason: The target must stay minimal, and k6 already covers the JavaScript side of the tool.
 architecture:
   style: modular-monolith
-  reason: O repositorio tem tres modulos coesos, alvo, cenario e relatorio, com um unico caminho Docker e sem custo distribuido artificial.
+  reason: The repository has three cohesive modules (target, scenario, and report) with one Docker path and no artificial distributed cost.
   problem_forces:
     domain_complexity: low
     integration_pressure: medium
@@ -73,17 +73,17 @@ architecture:
     auditability: low
     throughput_or_async: medium
     independent_deployability: low
-  dependency_rule: O alvo Go nao conhece k6 ou o relatorio; o cenario conhece apenas o contrato HTTP; o relatorio consome metricas do k6.
+  dependency_rule: The Go target knows neither k6 nor the report; the scenario knows only the HTTP contract; the report consumes k6 metrics.
   boundaries:
-    - internal/target: contrato e handler HTTP minimo.
-    - k6/scenarios: niveis de VUs, duracoes e requests.
-    - k6/report: transformacao do summary em resultado versionavel.
-    - scripts: adaptadores de execucao Docker para PowerShell e POSIX.
+    - internal/target: minimal HTTP contract and handler.
+    - k6/scenarios: VU levels, durations, and requests.
+    - k6/report: turns the k6 summary into a versioned result.
+    - scripts: Docker execution adapters for PowerShell and POSIX.
   rejected_alternatives:
     - style: hexagonal
-      reason: Haveria portas adicionais sem integracoes reais para trocar; as fronteiras modulares ja isolam o alvo e o benchmark.
+      reason: It would add ports with no real integrations to swap; the module boundaries already isolate the target and the benchmark.
     - style: microservices
-      reason: Um segundo processo de aplicacao aumentaria a variancia e a complexidade do caminho local.
+      reason: A second application process would increase variance and the complexity of the local path.
 design_system:
   tokens: .portfolio/design-system/tokens.yaml
   readme_components:
